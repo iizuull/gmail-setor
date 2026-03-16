@@ -3,97 +3,93 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Setor Gmail Pro</title>
+    <title>Setor Gmail - High Performance</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #f43f5e; --bg: #f8fafc; --success: #22c55e; --danger: #ef4444; }
+        :root { --primary: #2563eb; --bg: #f1f5f9; --text: #1e293b; --success: #22c55e; --danger: #ef4444; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
-        body { background: var(--bg); padding: 20px; display: flex; justify-content: center; color: #1e293b; }
-        .container { width: 100%; max-width: 500px; }
-        .card { background: white; border-radius: 20px; padding: 20px; margin-bottom: 20px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        body { background: var(--bg); color: var(--text); padding-bottom: 50px; }
+        .nav { background: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; position: sticky; top: 0; z-index: 100; }
+        .container { max-width: 600px; margin: 20px auto; padding: 0 15px; }
+        .card { background: white; border-radius: 16px; padding: 20px; border: 1px solid #e2e8f0; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
         .hidden { display: none; }
         
-        /* Auth Styles */
-        h2 { font-size: 20px; margin-bottom: 20px; text-align: center; }
-        input, select { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #e2e8f0; background: #f8fafc; font-size: 14px; outline: none; margin-bottom: 10px; }
-        .btn-primary { width: 100%; background: var(--primary); color: white; border: none; padding: 14px; border-radius: 12px; font-weight: 700; cursor: pointer; transition: 0.3s; }
-        .btn-primary:active { transform: scale(0.98); }
-        .btn-google { width: 100%; background: white; border: 1px solid #ddd; padding: 12px; border-radius: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 10px; }
+        /* Input Style */
+        label { font-size: 12px; font-weight: 700; color: #64748b; margin-bottom: 8px; display: block; text-transform: uppercase; }
+        textarea, input, select { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #e2e8f0; background: #f8fafc; font-size: 14px; outline: none; transition: 0.2s; margin-bottom: 15px; }
+        textarea:focus, input:focus { border-color: var(--primary); background: white; }
+        .btn { width: 100%; padding: 14px; border-radius: 12px; border: none; font-weight: 700; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { opacity: 0.9; }
+
+        /* History Table Style */
+        .tab-menu { display: flex; gap: 8px; margin-bottom: 15px; overflow-x: auto; }
+        .tab { padding: 8px 16px; border-radius: 20px; background: #e2e8f0; font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+        .tab.active { background: var(--primary); color: white; }
         
-        /* Dashboard Styles */
-        .user-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; background: white; padding: 15px; border-radius: 15px; border: 1px solid #eee; }
-        .user-header img { width: 40px; height: 40px; border-radius: 50%; }
-        
-        .status-badge { padding: 4px 8px; border-radius: 8px; font-size: 10px; font-weight: 800; text-transform: uppercase; }
+        .history-item { padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .status { padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; text-transform: uppercase; }
         .pending { background: #fef9c3; color: #854d0e; }
-        .success { background: #dcfce7; color: #15803d; }
-        .failed { background: #fee2e2; color: #b91c1c; }
+        .success { background: #dcfce7; color: #166534; }
+        .failed { background: #fee2e2; color: #991b1b; }
 
-        .item-list { font-size: 12px; background: #f1f5f9; padding: 10px; border-radius: 10px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
-
-        /* Admin Specific */
-        .admin-item { border: 1px solid #eee; padding: 15px; border-radius: 15px; margin-bottom: 15px; background: #fff; }
-        .btn-action-group { display: flex; gap: 10px; margin-top: 10px; }
-        .btn-acc { flex: 1; background: var(--success); color: white; border: none; padding: 10px; border-radius: 8px; font-weight: 700; cursor: pointer; }
-        .btn-rej { flex: 1; background: var(--danger); color: white; border: none; padding: 10px; border-radius: 8px; font-weight: 700; cursor: pointer; }
+        /* Admin Action */
+        .admin-ctrl { display: flex; gap: 10px; margin-top: 15px; }
+        .btn-sm { padding: 8px; border-radius: 8px; flex: 1; border: none; font-weight: 700; cursor: pointer; color: white; font-size: 12px; }
     </style>
 </head>
 <body>
 
+<div class="nav">
+    <div style="font-weight: 800; font-size: 18px; color: var(--primary);">SETORAN<span style="color: #1e293b;">KU</span></div>
+    <div id="auth-status"></div>
+</div>
+
 <div class="container">
     <div id="auth-area" class="card">
-        <h2>Dashboard Setor Gmail</h2>
-        <p style="text-align:center; font-size:13px; color:#64748b; margin-bottom:20px">Silakan login menggunakan Google untuk mulai.</p>
-        <button class="btn-google" id="btn-google">
-            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18">
-            Masuk dengan Google
+        <h2 style="margin-bottom: 10px;">Selamat Datang</h2>
+        <p style="color: #64748b; font-size: 14px; margin-bottom: 20px;">Silakan masuk untuk mulai mengelola setoran akun Gmail Anda.</p>
+        <button class="btn btn-primary" id="login-google">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18"> Masuk dengan Google
         </button>
     </div>
 
-    <div id="dashboard-area" class="hidden">
-        <div class="user-header">
-            <img id="user-photo" src="">
-            <div>
-                <p id="user-name" style="font-weight:700; font-size:14px"></p>
-                <p id="user-role" style="font-size:10px; color: var(--primary); font-weight: 800; text-transform: uppercase;"></p>
-            </div>
-            <button onclick="handleLogout()" style="margin-left:auto; border:none; background:none; color:red; font-size:12px; cursor:pointer">Keluar</button>
-        </div>
-
+    <div id="main-area" class="hidden">
+        
         <div id="user-view" class="hidden">
             <div class="card">
-                <h3><i class="fa-solid fa-plus-circle" style="color:var(--primary)"></i> Input Akun Baru</h3>
-                <input type="email" id="setor-email" placeholder="Email Gmail (@gmail.com)">
-                <input type="text" id="setor-pass" placeholder="Password Akun">
-                <button class="btn-primary" style="background: #1e293b" onclick="addToList()">+ Tambah ke Daftar</button>
+                <label>Input Akun (Format: email|password)</label>
+                <textarea id="bulk-input" rows="5" placeholder="contoh1@gmail.com|pass123&#10;contoh2@gmail.com|pass456" oninput="countAccounts()"></textarea>
+                <p id="counter" style="font-size: 12px; font-weight: 700; margin-bottom: 15px; color: var(--primary);">Total: 0 Akun</p>
                 
-                <div id="temp-list" style="margin-top:15px"></div>
+                <label>Nomor WhatsApp</label>
+                <input type="number" id="u-wa" placeholder="08xxxx">
                 
-                <div id="pay-box" class="hidden" style="margin-top:20px; border-top: 1px dashed #eee; padding-top:15px">
-                    <label style="font-size:11px; font-weight:700; color:#64748b">INFO PEMBAYARAN & KONTAK</label>
-                    <input type="number" id="user-wa" placeholder="Nomor WhatsApp (Aktif)">
-                    <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 10px;">
-                        <select id="user-metode"><option>DANA</option><option>SeaBank</option></select>
-                        <input type="number" id="user-rek" placeholder="Nomor Rekening/HP">
-                    </div>
-                    <button class="btn-primary" onclick="submitSetoran()">Kirim Semua Setoran</button>
+                <label>Metode Pembayaran</label>
+                <div style="display: flex; gap: 10px;">
+                    <select id="u-metode" style="flex: 1;"><option>DANA</option><option>SeaBank</option></select>
+                    <input type="number" id="u-rek" style="flex: 2;" placeholder="Nomor Rekening/HP">
                 </div>
+                
+                <button class="btn btn-primary" onclick="prosesSetoran()">Kirim Setoran</button>
             </div>
 
             <div class="card">
-                <h3><i class="fa-solid fa-history" style="color:var(--primary)"></i> Riwayat Setoran Anda</h3>
-                <div id="user-history"></div>
+                <label>Riwayat Setoran</label>
+                <div id="u-history"></div>
             </div>
         </div>
 
         <div id="admin-view" class="hidden">
-            <div class="card" style="background: #1e293b; color: white; border: none;">
-                <h3><i class="fa-solid fa-user-shield"></i> Panel Kendali Admin</h3>
-                <p style="font-size: 12px; opacity: 0.8;">Kelola setoran masuk secara real-time.</p>
+            <div class="tab-menu">
+                <div class="tab active" onclick="loadAdmin('pending', this)">Pending</div>
+                <div class="tab" onclick="loadAdmin('success', this)">Selesai</div>
+                <div class="tab" onclick="loadAdmin('failed', this)">Gagal</div>
             </div>
             <div id="admin-list"></div>
         </div>
+
     </div>
 </div>
 
@@ -112,151 +108,111 @@
     };
 
     const ADMIN_EMAIL = "fikorfikor0@gmail.com";
-
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     const auth = getAuth(app);
     const provider = new GoogleAuthProvider();
 
-    let uNow = null;
-    let tempList = [];
+    let userNow = null;
 
     // --- AUTH LOGIC ---
-    document.getElementById('btn-google').onclick = () => signInWithPopup(auth, provider);
+    document.getElementById('login-google').onclick = () => signInWithPopup(auth, provider);
     window.handleLogout = () => signOut(auth);
 
     onAuthStateChanged(auth, (user) => {
         if(user) {
-            uNow = user;
+            userNow = user;
             document.getElementById('auth-area').classList.add('hidden');
-            document.getElementById('dashboard-area').classList.remove('hidden');
-            document.getElementById('user-name').innerText = user.displayName;
-            document.getElementById('user-photo').src = user.photoURL;
-
+            document.getElementById('main-area').classList.remove('hidden');
+            document.getElementById('auth-status').innerHTML = `<img src="${user.photoURL}" width="30" style="border-radius:50%; cursor:pointer" onclick="handleLogout()">`;
+            
             if(user.email === ADMIN_EMAIL) {
-                document.getElementById('user-role').innerText = "Administrator";
                 document.getElementById('admin-view').classList.remove('hidden');
-                document.getElementById('user-view').classList.add('hidden');
-                loadAdminPanel();
+                loadAdmin('pending');
             } else {
-                document.getElementById('user-role').innerText = "Penyetor Gmail";
                 document.getElementById('user-view').classList.remove('hidden');
-                document.getElementById('admin-view').classList.add('hidden');
-                loadUserHistory(user.uid);
+                loadUserHistory();
             }
         } else {
             document.getElementById('auth-area').classList.remove('hidden');
-            document.getElementById('dashboard-area').classList.add('hidden');
+            document.getElementById('main-area').classList.add('hidden');
         }
     });
 
     // --- USER LOGIC ---
-    window.addToList = () => {
-        const e = document.getElementById('setor-email').value.trim().toLowerCase();
-        const p = document.getElementById('setor-pass').value.trim();
-        if(!e.endsWith("@gmail.com") || !p) return alert("Hanya Gmail (@gmail.com) dan Password wajib!");
-        if(tempList.some(item => item.email === e)) return alert("Email sudah ada di daftar antrean!");
-        
-        tempList.push({ email: e, pass: p });
-        renderTemp();
-        document.getElementById('setor-email').value = ""; 
-        document.getElementById('setor-pass').value = "";
+    window.countAccounts = () => {
+        const text = document.getElementById('bulk-input').value.trim();
+        const count = text ? text.split('\n').length : 0;
+        document.getElementById('counter').innerText = `Total: ${count} Akun`;
     };
 
-    function renderTemp() {
-        const div = document.getElementById('temp-list');
-        div.innerHTML = tempList.map((a,i) => `
-            <div class="item-list">
-                <span><strong>${i+1}.</strong> ${a.email}</span>
-                <i class="fa-solid fa-trash" onclick="window.delTemp(${i})" style="color:red; cursor:pointer"></i>
-            </div>
-        `).join('');
-        document.getElementById('pay-box').classList.toggle('hidden', tempList.length === 0);
-    }
-    window.delTemp = (i) => { tempList.splice(i,1); renderTemp(); };
+    window.prosesSetoran = async () => {
+        const input = document.getElementById('bulk-input').value.trim();
+        const wa = document.getElementById('u-wa').value;
+        const rek = document.getElementById('u-rek').value;
+        if(!input || !wa || !rek) return alert("Harap isi semua data!");
 
-    window.submitSetoran = async () => {
-        const wa = document.getElementById('user-wa').value;
-        const rek = document.getElementById('user-rekening') || document.getElementById('user-rek');
-        if(!wa || !rek.value) return alert("Lengkapi WA dan No. Rekening!");
+        const listAkun = input.split('\n').map(line => {
+            const [email, pass] = line.split('|');
+            return { email: email?.trim(), pass: pass?.trim() };
+        });
 
         try {
             await addDoc(collection(db, "setoran"), {
-                uid: uNow.uid, uName: uNow.displayName, uEmail: uNow.email,
-                wa, rek: rek.value, akun: tempList, total: tempList.length,
-                metode: document.getElementById('user-metode').value,
+                uid: userNow.uid, uName: userNow.displayName,
+                wa, rek, akun: listAkun, total: listAkun.length,
+                metode: document.getElementById('u-metode').value,
                 status: 'pending', timestamp: serverTimestamp()
             });
-
-            // Notifikasi Telegram (Optional)
-            const botToken = "8606712063:AAFNW8wXDOVfNy4IRzIUNT2PaavUJBayoy0";
-            const chatId = "7233546224";
-            fetch(`https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent('🚀 Setoran Baru dari ' + uNow.displayName + ' (' + tempList.length + ' Akun)')}`);
-
-            alert("✅ Setoran Berhasil Dikirim!");
-            tempList = []; renderTemp();
-            rek.value = ""; document.getElementById('user-wa').value = "";
-        } catch(e) { alert("Gagal mengirim: " + e.message); }
+            alert("Setoran terkirim!");
+            document.getElementById('bulk-input').value = ""; countAccounts();
+        } catch(e) { alert("Error: " + e.message); }
     };
 
-    function loadUserHistory(uid) {
-        const q = query(collection(db, "setoran"), where("uid", "==", uid), orderBy("timestamp", "desc"));
+    function loadUserHistory() {
+        const q = query(collection(db, "setoran"), where("uid", "==", userNow.uid), orderBy("timestamp", "desc"));
         onSnapshot(q, (s) => {
-            const hDiv = document.getElementById('user-history');
-            if(s.empty) { hDiv.innerHTML = '<p style="text-align:center; font-size:12px; color:#94a3b8; padding:20px">Belum ada riwayat setoran.</p>'; return; }
-            hDiv.innerHTML = s.docs.map(d => {
+            document.getElementById('u-history').innerHTML = s.docs.map(d => {
                 const data = d.data();
-                const t = data.timestamp?.toDate().toLocaleString('id-ID', {day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'});
-                return `
-                    <div style="padding:15px; border-bottom:1px solid #f1f5f9; display:flex; justify-content:space-between; align-items:center">
-                        <div>
-                            <p style="font-size:13px; font-weight:600">${data.total} Akun Gmail</p>
-                            <p style="font-size:10px; color:#94a3b8">${t || 'Memproses...'}</p>
-                        </div>
-                        <span class="status-badge ${data.status}">${data.status === 'pending' ? '⏳ Proses' : (data.status === 'success' ? '✅ Sukses' : '❌ Gagal')}</span>
-                    </div>`;
+                return `<div class="history-item">
+                    <div>
+                        <p style="font-weight:700; font-size:14px">${data.total} Akun Gmail</p>
+                        <p style="font-size:11px; color:#64748b">${data.metode} - ${data.rek}</p>
+                    </div>
+                    <span class="status ${data.status}">${data.status}</span>
+                </div>`;
             }).join('');
         });
     }
 
     // --- ADMIN LOGIC ---
-    function loadAdminPanel() {
-        const q = query(collection(db, "setoran"), orderBy("timestamp", "desc"));
+    window.loadAdmin = (status, el) => {
+        if(el) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            el.classList.add('active');
+        }
+        const q = query(collection(db, "setoran"), where("status", "==", status), orderBy("timestamp", "desc"));
         onSnapshot(q, (s) => {
-            const aList = document.getElementById('admin-list');
-            aList.innerHTML = s.docs.map(d => {
+            document.getElementById('admin-list').innerHTML = s.docs.map(d => {
                 const data = d.data();
-                const t = data.timestamp?.toDate().toLocaleString('id-ID', {day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'});
-                return `
-                    <div class="admin-item" style="border-left: 5px solid ${data.status === 'success' ? '#22c55e' : (data.status === 'failed' ? '#ef4444' : '#eab308')}">
-                        <div style="display:flex; justify-content:space-between; align-items:start">
-                            <div>
-                                <p style="font-size:13px; font-weight:700">👤 ${data.uName}</p>
-                                <p style="font-size:10px; color:#64748b">${t}</p>
-                            </div>
-                            <span class="status-badge ${data.status}">${data.status}</span>
-                        </div>
-                        <div style="margin-top:10px; font-size:11px; background:#f8fafc; padding:8px; border-radius:8px">
-                            <strong>WA:</strong> <a href="https://wa.me/${data.wa}" target="_blank">${data.wa}</a><br>
-                            <strong>Bayar:</strong> ${data.metode} - ${data.rek}
-                        </div>
-                        <div style="margin-top:10px; font-size:12px; color:#1e293b">
-                            ${data.akun.map(a => `• <code>${a.email}</code> | <code>${a.pass}</code>`).join('<br>')}
-                        </div>
-                        ${data.status === 'pending' ? `
-                            <div class="btn-action-group">
-                                <button class="btn-acc" onclick="updateStatus('${d.id}', 'success')">✅ TERIMA</button>
-                                <button class="btn-rej" onclick="updateStatus('${d.id}', 'failed')">❌ TOLAK</button>
-                            </div>
-                        ` : ''}
+                return `<div class="card" style="font-size:13px">
+                    <p><strong>Dari:</strong> ${data.uName} (${data.wa})</p>
+                    <p><strong>Payment:</strong> ${data.metode} - ${data.rek}</p>
+                    <div style="background:#f1f5f9; padding:10px; border-radius:8px; margin:10px 0; font-family:monospace">
+                        ${data.akun.map(a => `${a.email}|${a.pass}`).join('<br>')}
                     </div>
-                `;
+                    ${data.status === 'pending' ? `
+                    <div class="admin-ctrl">
+                        <button class="btn-sm" style="background:var(--success)" onclick="updateStatus('${d.id}', 'success')">ACC</button>
+                        <button class="btn-sm" style="background:var(--danger)" onclick="updateStatus('${d.id}', 'failed')">TOLAK</button>
+                    </div>` : ''}
+                </div>`;
             }).join('');
         });
-    }
+    };
 
     window.updateStatus = async (id, stat) => {
-        if(confirm(`Ubah status setoran menjadi ${stat.toUpperCase()}?`)) {
+        if(confirm(`Yakin mengubah ke ${stat}?`)) {
             await updateDoc(doc(db, "setoran", id), { status: stat });
         }
     };
