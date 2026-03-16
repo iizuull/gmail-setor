@@ -16,92 +16,91 @@
         
         /* Auth Styles */
         h2 { font-size: 20px; margin-bottom: 20px; text-align: center; }
-        input, select { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #e2e8f0; background: #f8fafc; font-size: 14px; outline: none; margin-bottom: 10px; transition: 0.3s; }
-        input:focus { border-color: var(--primary); background: white; }
-        
-        .btn-primary { width: 100%; background: var(--primary); color: white; border: none; padding: 14px; border-radius: 12px; font-weight: 700; cursor: pointer; margin-top: 5px; }
-        .btn-google { width: 100%; background: white; color: #444; border: 1px solid #ddd; padding: 12px; border-radius: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 10px; }
+        input, select { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #e2e8f0; background: #f8fafc; font-size: 14px; outline: none; margin-bottom: 10px; }
+        .btn-primary { width: 100%; background: var(--primary); color: white; border: none; padding: 14px; border-radius: 12px; font-weight: 700; cursor: pointer; transition: 0.3s; }
+        .btn-primary:active { transform: scale(0.98); }
+        .btn-google { width: 100%; background: white; border: 1px solid #ddd; padding: 12px; border-radius: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 10px; }
         
         /* Dashboard Styles */
-        .user-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
-        .user-header img { width: 45px; height: 45px; border-radius: 50%; background: #eee; }
+        .user-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; background: white; padding: 15px; border-radius: 15px; border: 1px solid #eee; }
+        .user-header img { width: 40px; height: 40px; border-radius: 50%; }
         
-        .tab-menu { display: flex; gap: 10px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; }
-        .tab-btn { padding: 8px 15px; border-radius: 20px; border: 1px solid #e2e8f0; background: white; font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap; }
-        .tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
-
         .status-badge { padding: 4px 8px; border-radius: 8px; font-size: 10px; font-weight: 800; text-transform: uppercase; }
         .pending { background: #fef9c3; color: #854d0e; }
         .success { background: #dcfce7; color: #15803d; }
         .failed { background: #fee2e2; color: #b91c1c; }
-        
+
         .item-list { font-size: 12px; background: #f1f5f9; padding: 10px; border-radius: 10px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
+
+        /* Admin Specific */
+        .admin-item { border: 1px solid #eee; padding: 15px; border-radius: 15px; margin-bottom: 15px; background: #fff; }
+        .btn-action-group { display: flex; gap: 10px; margin-top: 10px; }
+        .btn-acc { flex: 1; background: var(--success); color: white; border: none; padding: 10px; border-radius: 8px; font-weight: 700; cursor: pointer; }
+        .btn-rej { flex: 1; background: var(--danger); color: white; border: none; padding: 10px; border-radius: 8px; font-weight: 700; cursor: pointer; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div id="auth-area" class="card">
-        <h2 id="auth-title">Login Ke Dashboard</h2>
-        <div id="email-login-form">
-            <input type="email" id="auth-email" placeholder="Email Anda">
-            <input type="password" id="auth-pass" placeholder="Password">
-            <button class="btn-primary" id="btn-action">Login</button>
-            <p style="text-align:center; font-size:12px; margin-top:15px">
-                <span id="toggle-text">Belum punya akun?</span> 
-                <a href="#" id="auth-toggle" style="color:var(--primary); font-weight:700">Daftar Sekarang</a>
-            </p>
-        </div>
-        <hr style="margin: 20px 0; border: 0; border-top: 1px solid #eee;">
+        <h2>Dashboard Setor Gmail</h2>
+        <p style="text-align:center; font-size:13px; color:#64748b; margin-bottom:20px">Silakan login menggunakan Google untuk mulai.</p>
         <button class="btn-google" id="btn-google">
             <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18">
-            Lanjutkan dengan Google
+            Masuk dengan Google
         </button>
     </div>
 
     <div id="dashboard-area" class="hidden">
         <div class="user-header">
-            <img id="user-photo" src="https://ui-avatars.com/api/?name=User">
+            <img id="user-photo" src="">
             <div>
-                <p id="user-name" style="font-weight:700; font-size:14px">Loading...</p>
-                <button onclick="handleLogout()" style="border:none; background:none; color:var(--danger); font-size:11px; cursor:pointer; padding:0">Keluar Akun</button>
+                <p id="user-name" style="font-weight:700; font-size:14px"></p>
+                <p id="user-role" style="font-size:10px; color: var(--primary); font-weight: 800; text-transform: uppercase;"></p>
             </div>
+            <button onclick="handleLogout()" style="margin-left:auto; border:none; background:none; color:red; font-size:12px; cursor:pointer">Keluar</button>
         </div>
 
-        <div class="card">
-            <h3><i class="fa-solid fa-paper-plane" style="color:var(--primary)"></i> Form Setoran</h3>
-            <input type="email" id="setor-email" placeholder="Email Gmail Baru">
-            <input type="text" id="setor-pass" placeholder="Password Gmail">
-            <button class="btn-primary" style="background:#1e293b" onclick="addToList()">+ Tambah Akun</button>
-            <div id="temp-list" style="margin-top:15px"></div>
-            
-            <div id="payment-box" class="hidden" style="margin-top:20px; border-top: 1px dashed #ddd; padding-top:15px">
-                <input type="number" id="user-wa" placeholder="Nomor WA Aktif">
-                <div style="display:grid; grid-template-columns: 1fr 2fr; gap:10px">
-                    <select id="user-metode"><option>DANA</option><option>SeaBank</option></select>
-                    <input type="number" id="user-rekening" placeholder="No. Rekening">
+        <div id="user-view" class="hidden">
+            <div class="card">
+                <h3><i class="fa-solid fa-plus-circle" style="color:var(--primary)"></i> Input Akun Baru</h3>
+                <input type="email" id="setor-email" placeholder="Email Gmail (@gmail.com)">
+                <input type="text" id="setor-pass" placeholder="Password Akun">
+                <button class="btn-primary" style="background: #1e293b" onclick="addToList()">+ Tambah ke Daftar</button>
+                
+                <div id="temp-list" style="margin-top:15px"></div>
+                
+                <div id="pay-box" class="hidden" style="margin-top:20px; border-top: 1px dashed #eee; padding-top:15px">
+                    <label style="font-size:11px; font-weight:700; color:#64748b">INFO PEMBAYARAN & KONTAK</label>
+                    <input type="number" id="user-wa" placeholder="Nomor WhatsApp (Aktif)">
+                    <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 10px;">
+                        <select id="user-metode"><option>DANA</option><option>SeaBank</option></select>
+                        <input type="number" id="user-rek" placeholder="Nomor Rekening/HP">
+                    </div>
+                    <button class="btn-primary" onclick="submitSetoran()">Kirim Semua Setoran</button>
                 </div>
-                <button class="btn-primary" onclick="submitToFirebase()">Kirim Semua Setoran</button>
+            </div>
+
+            <div class="card">
+                <h3><i class="fa-solid fa-history" style="color:var(--primary)"></i> Riwayat Setoran Anda</h3>
+                <div id="user-history"></div>
             </div>
         </div>
 
-        <div class="card">
-            <h3><i class="fa-solid fa-clock-rotate-left" style="color:var(--primary)"></i> Riwayat</h3>
-            <div class="tab-menu">
-                <button class="tab-btn active" onclick="filterHistory('all', this)">Semua</button>
-                <button class="tab-btn" onclick="filterHistory('pending', this)">⏳ Proses</button>
-                <button class="tab-btn" onclick="filterHistory('success', this)">✅ Sukses</button>
-                <button class="tab-btn" onclick="filterHistory('failed', this)">❌ Gagal</button>
+        <div id="admin-view" class="hidden">
+            <div class="card" style="background: #1e293b; color: white; border: none;">
+                <h3><i class="fa-solid fa-user-shield"></i> Panel Kendali Admin</h3>
+                <p style="font-size: 12px; opacity: 0.8;">Kelola setoran masuk secara real-time.</p>
             </div>
-            <div id="history-content"></div>
+            <div id="admin-list"></div>
         </div>
     </div>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, addDoc, query, onSnapshot, orderBy, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-    import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getFirestore, collection, addDoc, query, onSnapshot, orderBy, where, serverTimestamp, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyCsF9mAj8UIbNOZFdd9F_7vvoVFMBm3Aik",
@@ -112,118 +111,155 @@
         appId: "1:184711293174:web:bc158d490893cd3757a4d7"
     };
 
+    const ADMIN_EMAIL = "fikorfikor0@gmail.com";
+
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     const auth = getAuth(app);
     const provider = new GoogleAuthProvider();
 
-    let userNow = null;
-    let tempAccounts = [];
-    let isLoginMode = true;
+    let uNow = null;
+    let tempList = [];
 
     // --- AUTH LOGIC ---
-    document.getElementById('auth-toggle').onclick = () => {
-        isLoginMode = !isLoginMode;
-        document.getElementById('auth-title').innerText = isLoginMode ? "Login Ke Dashboard" : "Daftar Akun Baru";
-        document.getElementById('btn-action').innerText = isLoginMode ? "Login" : "Daftar";
-        document.getElementById('toggle-text').innerText = isLoginMode ? "Belum punya akun?" : "Sudah punya akun?";
-        document.getElementById('auth-toggle').innerText = isLoginMode ? "Daftar Sekarang" : "Login Sekarang";
-    };
-
-    document.getElementById('btn-action').onclick = async () => {
-        const email = document.getElementById('auth-email').value;
-        const pass = document.getElementById('auth-pass').value;
-        try {
-            if(isLoginMode) await signInWithEmailAndPassword(auth, email, pass);
-            else await createUserWithEmailAndPassword(auth, email, pass);
-        } catch(e) { alert("Auth Error: " + e.message); }
-    };
-
     document.getElementById('btn-google').onclick = () => signInWithPopup(auth, provider);
     window.handleLogout = () => signOut(auth);
 
     onAuthStateChanged(auth, (user) => {
         if(user) {
-            userNow = user;
+            uNow = user;
             document.getElementById('auth-area').classList.add('hidden');
             document.getElementById('dashboard-area').classList.remove('hidden');
-            document.getElementById('user-name').innerText = user.displayName || user.email.split('@')[0];
-            if(user.photoURL) document.getElementById('user-photo').src = user.photoURL;
-            loadHistory('all');
+            document.getElementById('user-name').innerText = user.displayName;
+            document.getElementById('user-photo').src = user.photoURL;
+
+            if(user.email === ADMIN_EMAIL) {
+                document.getElementById('user-role').innerText = "Administrator";
+                document.getElementById('admin-view').classList.remove('hidden');
+                document.getElementById('user-view').classList.add('hidden');
+                loadAdminPanel();
+            } else {
+                document.getElementById('user-role').innerText = "Penyetor Gmail";
+                document.getElementById('user-view').classList.remove('hidden');
+                document.getElementById('admin-view').classList.add('hidden');
+                loadUserHistory(user.uid);
+            }
         } else {
             document.getElementById('auth-area').classList.remove('hidden');
             document.getElementById('dashboard-area').classList.add('hidden');
         }
     });
 
-    // --- SETOR LOGIC ---
+    // --- USER LOGIC ---
     window.addToList = () => {
-        const email = document.getElementById('setor-email').value.trim();
-        const pass = document.getElementById('setor-pass').value.trim();
-        if(!email.endsWith("@gmail.com") || !pass) return alert("Hanya Gmail & Password wajib!");
-        tempAccounts.push({ email, pass });
+        const e = document.getElementById('setor-email').value.trim().toLowerCase();
+        const p = document.getElementById('setor-pass').value.trim();
+        if(!e.endsWith("@gmail.com") || !p) return alert("Hanya Gmail (@gmail.com) dan Password wajib!");
+        if(tempList.some(item => item.email === e)) return alert("Email sudah ada di daftar antrean!");
+        
+        tempList.push({ email: e, pass: p });
         renderTemp();
-        document.getElementById('setor-email').value = "";
+        document.getElementById('setor-email').value = ""; 
         document.getElementById('setor-pass').value = "";
     };
 
     function renderTemp() {
         const div = document.getElementById('temp-list');
-        div.innerHTML = tempAccounts.map((a, i) => `<div class="item-list"><span>${i+1}. ${a.email}</span><i class="fa-solid fa-trash" onclick="window.delTemp(${i})" style="color:red"></i></div>`).join('');
-        document.getElementById('payment-box').classList.toggle('hidden', tempAccounts.length === 0);
+        div.innerHTML = tempList.map((a,i) => `
+            <div class="item-list">
+                <span><strong>${i+1}.</strong> ${a.email}</span>
+                <i class="fa-solid fa-trash" onclick="window.delTemp(${i})" style="color:red; cursor:pointer"></i>
+            </div>
+        `).join('');
+        document.getElementById('pay-box').classList.toggle('hidden', tempList.length === 0);
     }
-    window.delTemp = (i) => { tempAccounts.splice(i,1); renderTemp(); };
+    window.delTemp = (i) => { tempList.splice(i,1); renderTemp(); };
 
-    window.submitToFirebase = async () => {
+    window.submitSetoran = async () => {
         const wa = document.getElementById('user-wa').value;
-        const rek = document.getElementById('user-rekening').value;
-        if(!wa || !rek) return alert("WA & Rekening wajib!");
+        const rek = document.getElementById('user-rekening') || document.getElementById('user-rek');
+        if(!wa || !rek.value) return alert("Lengkapi WA dan No. Rekening!");
 
         try {
             await addDoc(collection(db, "setoran"), {
-                uid: userNow.uid,
-                emailPenyetor: userNow.email,
-                wa, rek, 
+                uid: uNow.uid, uName: uNow.displayName, uEmail: uNow.email,
+                wa, rek: rek.value, akun: tempList, total: tempList.length,
                 metode: document.getElementById('user-metode').value,
-                akun: tempAccounts,
-                total: tempAccounts.length,
-                status: 'pending',
-                timestamp: serverTimestamp()
+                status: 'pending', timestamp: serverTimestamp()
             });
-            alert("Berhasil Terkirim!");
-            tempAccounts = []; renderTemp();
-        } catch(e) { alert("Gagal Simpan."); }
+
+            // Notifikasi Telegram (Optional)
+            const botToken = "8606712063:AAFNW8wXDOVfNy4IRzIUNT2PaavUJBayoy0";
+            const chatId = "7233546224";
+            fetch(`https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent('🚀 Setoran Baru dari ' + uNow.displayName + ' (' + tempList.length + ' Akun)')}`);
+
+            alert("✅ Setoran Berhasil Dikirim!");
+            tempList = []; renderTemp();
+            rek.value = ""; document.getElementById('user-wa').value = "";
+        } catch(e) { alert("Gagal mengirim: " + e.message); }
     };
 
-    // --- HISTORY LOGIC ---
-    window.filterHistory = (status, btn) => {
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        loadHistory(status);
-    };
-
-    function loadHistory(filter) {
-        const content = document.getElementById('history-content');
-        let q = query(collection(db, "setoran"), where("uid", "==", userNow.uid), orderBy("timestamp", "desc"));
-        if(filter !== 'all') q = query(collection(db, "setoran"), where("uid", "==", userNow.uid), where("status", "==", filter), orderBy("timestamp", "desc"));
-
-        onSnapshot(q, (snap) => {
-            content.innerHTML = snap.empty ? '<p style="text-align:center;font-size:12px;color:#94a3b8;padding:20px">Tidak ada riwayat.</p>' : '';
-            snap.forEach(doc => {
-                const d = doc.data();
-                const t = d.timestamp?.toDate().toLocaleString('id-ID', {day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'});
-                content.innerHTML += `
-                    <div style="padding:15px; border-bottom:1px solid #f1f5f9">
-                        <div style="display:flex; justify-content:space-between; margin-bottom:5px">
-                            <span style="font-size:11px; color:#94a3b8">${t || 'Proses...'}</span>
-                            <span class="status-badge ${d.status}">${d.status}</span>
+    function loadUserHistory(uid) {
+        const q = query(collection(db, "setoran"), where("uid", "==", uid), orderBy("timestamp", "desc"));
+        onSnapshot(q, (s) => {
+            const hDiv = document.getElementById('user-history');
+            if(s.empty) { hDiv.innerHTML = '<p style="text-align:center; font-size:12px; color:#94a3b8; padding:20px">Belum ada riwayat setoran.</p>'; return; }
+            hDiv.innerHTML = s.docs.map(d => {
+                const data = d.data();
+                const t = data.timestamp?.toDate().toLocaleString('id-ID', {day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'});
+                return `
+                    <div style="padding:15px; border-bottom:1px solid #f1f5f9; display:flex; justify-content:space-between; align-items:center">
+                        <div>
+                            <p style="font-size:13px; font-weight:600">${data.total} Akun Gmail</p>
+                            <p style="font-size:10px; color:#94a3b8">${t || 'Memproses...'}</p>
                         </div>
-                        <p style="font-size:13px; font-weight:600">${d.total} Akun Gmail</p>
-                    </div>
-                `;
-            });
+                        <span class="status-badge ${data.status}">${data.status === 'pending' ? '⏳ Proses' : (data.status === 'success' ? '✅ Sukses' : '❌ Gagal')}</span>
+                    </div>`;
+            }).join('');
         });
     }
+
+    // --- ADMIN LOGIC ---
+    function loadAdminPanel() {
+        const q = query(collection(db, "setoran"), orderBy("timestamp", "desc"));
+        onSnapshot(q, (s) => {
+            const aList = document.getElementById('admin-list');
+            aList.innerHTML = s.docs.map(d => {
+                const data = d.data();
+                const t = data.timestamp?.toDate().toLocaleString('id-ID', {day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'});
+                return `
+                    <div class="admin-item" style="border-left: 5px solid ${data.status === 'success' ? '#22c55e' : (data.status === 'failed' ? '#ef4444' : '#eab308')}">
+                        <div style="display:flex; justify-content:space-between; align-items:start">
+                            <div>
+                                <p style="font-size:13px; font-weight:700">👤 ${data.uName}</p>
+                                <p style="font-size:10px; color:#64748b">${t}</p>
+                            </div>
+                            <span class="status-badge ${data.status}">${data.status}</span>
+                        </div>
+                        <div style="margin-top:10px; font-size:11px; background:#f8fafc; padding:8px; border-radius:8px">
+                            <strong>WA:</strong> <a href="https://wa.me/${data.wa}" target="_blank">${data.wa}</a><br>
+                            <strong>Bayar:</strong> ${data.metode} - ${data.rek}
+                        </div>
+                        <div style="margin-top:10px; font-size:12px; color:#1e293b">
+                            ${data.akun.map(a => `• <code>${a.email}</code> | <code>${a.pass}</code>`).join('<br>')}
+                        </div>
+                        ${data.status === 'pending' ? `
+                            <div class="btn-action-group">
+                                <button class="btn-acc" onclick="updateStatus('${d.id}', 'success')">✅ TERIMA</button>
+                                <button class="btn-rej" onclick="updateStatus('${d.id}', 'failed')">❌ TOLAK</button>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('');
+        });
+    }
+
+    window.updateStatus = async (id, stat) => {
+        if(confirm(`Ubah status setoran menjadi ${stat.toUpperCase()}?`)) {
+            await updateDoc(doc(db, "setoran", id), { status: stat });
+        }
+    };
 </script>
 
 </body>
