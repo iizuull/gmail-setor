@@ -3,141 +3,228 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Setor Gmail - Pro Dashboard</title>
+    <title>Dashboard Setor Gmail Pro</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #f43f5e; --bg: #f8fafc; }
+        :root { --primary: #f43f5e; --bg: #f8fafc; --success: #22c55e; --danger: #ef4444; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
         body { background: var(--bg); padding: 20px; display: flex; justify-content: center; color: #1e293b; }
         .container { width: 100%; max-width: 500px; }
         .card { background: white; border-radius: 20px; padding: 20px; margin-bottom: 20px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
-        h3 { font-size: 16px; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
-        .form-input { margin-bottom: 12px; }
-        label { display: block; font-size: 11px; font-weight: 700; color: #64748b; margin-bottom: 5px; text-transform: uppercase; }
-        input, select { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #e2e8f0; background: #f8fafc; font-size: 14px; outline: none; transition: 0.3s; }
+        .hidden { display: none; }
+        
+        /* Auth Styles */
+        h2 { font-size: 20px; margin-bottom: 20px; text-align: center; }
+        input, select { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #e2e8f0; background: #f8fafc; font-size: 14px; outline: none; margin-bottom: 10px; transition: 0.3s; }
         input:focus { border-color: var(--primary); background: white; }
-        .btn-add { width: 100%; background: #1e293b; color: white; border: none; padding: 14px; border-radius: 12px; font-weight: 700; cursor: pointer; margin-bottom: 10px; }
-        .btn-send { width: 100%; background: var(--primary); color: white; border: none; padding: 16px; border-radius: 12px; font-weight: 800; cursor: pointer; font-size: 15px; box-shadow: 0 4px 15px rgba(244, 63, 94, 0.3); }
-        .history-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        .history-table th { text-align: left; font-size: 11px; color: #94a3b8; padding: 10px; border-bottom: 1px solid #f1f5f9; }
-        .history-table td { padding: 12px 10px; font-size: 12px; border-bottom: 1px solid #f8fafc; }
-        .status-badge { padding: 4px 8px; border-radius: 8px; font-size: 10px; font-weight: 700; text-transform: uppercase; }
+        
+        .btn-primary { width: 100%; background: var(--primary); color: white; border: none; padding: 14px; border-radius: 12px; font-weight: 700; cursor: pointer; margin-top: 5px; }
+        .btn-google { width: 100%; background: white; color: #444; border: 1px solid #ddd; padding: 12px; border-radius: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 10px; }
+        
+        /* Dashboard Styles */
+        .user-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+        .user-header img { width: 45px; height: 45px; border-radius: 50%; background: #eee; }
+        
+        .tab-menu { display: flex; gap: 10px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; }
+        .tab-btn { padding: 8px 15px; border-radius: 20px; border: 1px solid #e2e8f0; background: white; font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+        .tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+        .status-badge { padding: 4px 8px; border-radius: 8px; font-size: 10px; font-weight: 800; text-transform: uppercase; }
         .pending { background: #fef9c3; color: #854d0e; }
-        .success { background: #dcfce7; color: #166534; }
-        .failed { background: #fee2e2; color: #991b1b; }
-        .info-box { background: #eff6ff; border: 1px solid #dbeafe; padding: 12px; border-radius: 12px; display: flex; gap: 10px; margin-bottom: 20px; font-size: 12px; color: #1e40af; }
+        .success { background: #dcfce7; color: #15803d; }
+        .failed { background: #fee2e2; color: #b91c1c; }
+        
+        .item-list { font-size: 12px; background: #f1f5f9; padding: 10px; border-radius: 10px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="info-box">
-        <i class="fa-solid fa-circle-info"></i>
-        <p><strong>Info Proses:</strong> Verifikasi akun maksimal 1x24 jam. Status akan berubah otomatis di tabel riwayat.</p>
+    <div id="auth-area" class="card">
+        <h2 id="auth-title">Login Ke Dashboard</h2>
+        <div id="email-login-form">
+            <input type="email" id="auth-email" placeholder="Email Anda">
+            <input type="password" id="auth-pass" placeholder="Password">
+            <button class="btn-primary" id="btn-action">Login</button>
+            <p style="text-align:center; font-size:12px; margin-top:15px">
+                <span id="toggle-text">Belum punya akun?</span> 
+                <a href="#" id="auth-toggle" style="color:var(--primary); font-weight:700">Daftar Sekarang</a>
+            </p>
+        </div>
+        <hr style="margin: 20px 0; border: 0; border-top: 1px solid #eee;">
+        <button class="btn-google" id="btn-google">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18">
+            Lanjutkan dengan Google
+        </button>
     </div>
 
-    <div class="card">
-        <h3><i class="fa-solid fa-plus-circle" style="color:var(--primary)"></i> Input Akun</h3>
-        <div class="form-input">
-            <label>Email Gmail</label>
-            <input type="email" id="temp-email" placeholder="nama@gmail.com">
-        </div>
-        <div class="form-input">
-            <label>Password</label>
-            <input type="text" id="temp-pass" placeholder="Password akun">
-        </div>
-        <button class="btn-add" id="addBtn">+ Tambah ke Antrean</button>
-
-        <div id="list-antrean" style="margin-top: 15px;"></div>
-
-        <div style="margin-top:20px; border-top: 1px dashed #eee; padding-top: 15px;">
-            <div class="form-input">
-                <label>Nomor WhatsApp</label>
-                <input type="number" id="pay-wa" placeholder="08xxxxxxxx">
+    <div id="dashboard-area" class="hidden">
+        <div class="user-header">
+            <img id="user-photo" src="https://ui-avatars.com/api/?name=User">
+            <div>
+                <p id="user-name" style="font-weight:700; font-size:14px">Loading...</p>
+                <button onclick="handleLogout()" style="border:none; background:none; color:var(--danger); font-size:11px; cursor:pointer; padding:0">Keluar Akun</button>
             </div>
-            <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 10px;">
-                <div class="form-input">
-                    <label>Metode</label>
-                    <select id="pay-metode">
-                        <option value="DANA">DANA</option>
-                        <option value="SeaBank">SeaBank</option>
-                    </select>
-                </div>
-                <div class="form-input">
-                    <label>No. Rekening/HP</label>
-                    <input type="number" id="pay-nomor" placeholder="Nomor akun">
-                </div>
-            </div>
-            <button class="btn-send" id="sendBtn" style="margin-top: 10px;">Kirim Semua Setoran</button>
         </div>
-    </div>
 
-    <div class="card">
-        <h3><i class="fa-solid fa-history" style="color:var(--primary)"></i> Riwayat Setoran</h3>
-        <table class="history-table">
-            <thead>
-                <tr>
-                    <th>Waktu</th>
-                    <th>Jumlah</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody id="history-body">
-                <tr><td colspan="3" style="text-align:center; padding:20px;">Memuat riwayat...</td></tr>
-            </tbody>
-        </table>
+        <div class="card">
+            <h3><i class="fa-solid fa-paper-plane" style="color:var(--primary)"></i> Form Setoran</h3>
+            <input type="email" id="setor-email" placeholder="Email Gmail Baru">
+            <input type="text" id="setor-pass" placeholder="Password Gmail">
+            <button class="btn-primary" style="background:#1e293b" onclick="addToList()">+ Tambah Akun</button>
+            <div id="temp-list" style="margin-top:15px"></div>
+            
+            <div id="payment-box" class="hidden" style="margin-top:20px; border-top: 1px dashed #ddd; padding-top:15px">
+                <input type="number" id="user-wa" placeholder="Nomor WA Aktif">
+                <div style="display:grid; grid-template-columns: 1fr 2fr; gap:10px">
+                    <select id="user-metode"><option>DANA</option><option>SeaBank</option></select>
+                    <input type="number" id="user-rekening" placeholder="No. Rekening">
+                </div>
+                <button class="btn-primary" onclick="submitToFirebase()">Kirim Semua Setoran</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3><i class="fa-solid fa-clock-rotate-left" style="color:var(--primary)"></i> Riwayat</h3>
+            <div class="tab-menu">
+                <button class="tab-btn active" onclick="filterHistory('all', this)">Semua</button>
+                <button class="tab-btn" onclick="filterHistory('pending', this)">⏳ Proses</button>
+                <button class="tab-btn" onclick="filterHistory('success', this)">✅ Sukses</button>
+                <button class="tab-btn" onclick="filterHistory('failed', this)">❌ Gagal</button>
+            </div>
+            <div id="history-content"></div>
+        </div>
     </div>
 </div>
 
 <script type="module">
-    // Import Firebase SDK
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, addDoc, query, onSnapshot, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, query, onSnapshot, orderBy, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-    // Config Firebase Kamu
     const firebaseConfig = {
-      apiKey: "AIzaSyCsF9mAj8UIbNOZFdd9F_7vvoVFMBm3Aik",
-      authDomain: "mail-id-2948b.firebaseapp.com",
-      projectId: "mail-id-2948b",
-      storageBucket: "mail-id-2948b.firebasestorage.app",
-      messagingSenderId: "184711293174",
-      appId: "1:184711293174:web:bc158d490893cd3757a4d7"
+        apiKey: "AIzaSyCsF9mAj8UIbNOZFdd9F_7vvoVFMBm3Aik",
+        authDomain: "mail-id-2948b.firebaseapp.com",
+        projectId: "mail-id-2948b",
+        storageBucket: "mail-id-2948b.firebasestorage.app",
+        messagingSenderId: "184711293174",
+        appId: "1:184711293174:web:bc158d490893cd3757a4d7"
     };
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
-    let antreanAkun = [];
+    const auth = getAuth(app);
+    const provider = new GoogleAuthProvider();
 
-    // --- FUNGSI TAMBAH KE ANTREAN ---
-    document.getElementById('addBtn').onclick = () => {
-        const email = document.getElementById('temp-email').value.trim().toLowerCase();
-        const pass = document.getElementById('temp-pass').value.trim();
-        
-        if(!email.endsWith("@gmail.com") || !pass) return alert("Hanya @gmail.com & password wajib!");
-        if(antreanAkun.some(a => a.email === email)) return alert("Email sudah ada di daftar!");
-        
-        antreanAkun.push({ email, pass });
-        renderList();
-        document.getElementById('temp-email').value = "";
-        document.getElementById('temp-pass').value = "";
+    let userNow = null;
+    let tempAccounts = [];
+    let isLoginMode = true;
+
+    // --- AUTH LOGIC ---
+    document.getElementById('auth-toggle').onclick = () => {
+        isLoginMode = !isLoginMode;
+        document.getElementById('auth-title').innerText = isLoginMode ? "Login Ke Dashboard" : "Daftar Akun Baru";
+        document.getElementById('btn-action').innerText = isLoginMode ? "Login" : "Daftar";
+        document.getElementById('toggle-text').innerText = isLoginMode ? "Belum punya akun?" : "Sudah punya akun?";
+        document.getElementById('auth-toggle').innerText = isLoginMode ? "Daftar Sekarang" : "Login Sekarang";
     };
 
-    function renderList() {
-        const container = document.getElementById('list-antrean');
-        container.innerHTML = antreanAkun.map((item, i) => `
-            <div style="font-size:12px; background:#f1f5f9; padding:10px; border-radius:10px; margin-bottom:6px; display:flex; justify-content:space-between; align-items:center;">
-                <span><strong>${i+1}.</strong> ${item.email}</span>
-                <i class="fa-solid fa-trash" onclick="window.hapusAkun(${i})" style="cursor:pointer; color:#f43f5e;"></i>
-            </div>
-        `).join('');
-    }
-    window.hapusAkun = (i) => { antreanAkun.splice(i,1); renderList(); };
+    document.getElementById('btn-action').onclick = async () => {
+        const email = document.getElementById('auth-email').value;
+        const pass = document.getElementById('auth-pass').value;
+        try {
+            if(isLoginMode) await signInWithEmailAndPassword(auth, email, pass);
+            else await createUserWithEmailAndPassword(auth, email, pass);
+        } catch(e) { alert("Auth Error: " + e.message); }
+    };
 
-    // --- FUNGSI KIRIM ---
-    document.getElementById('sendBtn').onclick = async () => {
-        const wa = document.getElementById('pay-wa').value;
-        const nomor = document.getElementById('pay-nomor').value;
-        const metode = document.getElementById('pay-metode').value;
-        
-        if(antreanAkun.length === 0 || !wa || !nomor) return alert("Lengkapi semua data!");
+    document.getElementById('btn-google').onclick = () => signInWithPopup(auth, provider);
+    window.handleLogout = () => signOut(auth);
+
+    onAuthStateChanged(auth, (user) => {
+        if(user) {
+            userNow = user;
+            document.getElementById('auth-area').classList.add('hidden');
+            document.getElementById('dashboard-area').classList.remove('hidden');
+            document.getElementById('user-name').innerText = user.displayName || user.email.split('@')[0];
+            if(user.photoURL) document.getElementById('user-photo').src = user.photoURL;
+            loadHistory('all');
+        } else {
+            document.getElementById('auth-area').classList.remove('hidden');
+            document.getElementById('dashboard-area').classList.add('hidden');
+        }
+    });
+
+    // --- SETOR LOGIC ---
+    window.addToList = () => {
+        const email = document.getElementById('setor-email').value.trim();
+        const pass = document.getElementById('setor-pass').value.trim();
+        if(!email.endsWith("@gmail.com") || !pass) return alert("Hanya Gmail & Password wajib!");
+        tempAccounts.push({ email, pass });
+        renderTemp();
+        document.getElementById('setor-email').value = "";
+        document.getElementById('setor-pass').value = "";
+    };
+
+    function renderTemp() {
+        const div = document.getElementById('temp-list');
+        div.innerHTML = tempAccounts.map((a, i) => `<div class="item-list"><span>${i+1}. ${a.email}</span><i class="fa-solid fa-trash" onclick="window.delTemp(${i})" style="color:red"></i></div>`).join('');
+        document.getElementById('payment-box').classList.toggle('hidden', tempAccounts.length === 0);
+    }
+    window.delTemp = (i) => { tempAccounts.splice(i,1); renderTemp(); };
+
+    window.submitToFirebase = async () => {
+        const wa = document.getElementById('user-wa').value;
+        const rek = document.getElementById('user-rekening').value;
+        if(!wa || !rek) return alert("WA & Rekening wajib!");
+
+        try {
+            await addDoc(collection(db, "setoran"), {
+                uid: userNow.uid,
+                emailPenyetor: userNow.email,
+                wa, rek, 
+                metode: document.getElementById('user-metode').value,
+                akun: tempAccounts,
+                total: tempAccounts.length,
+                status: 'pending',
+                timestamp: serverTimestamp()
+            });
+            alert("Berhasil Terkirim!");
+            tempAccounts = []; renderTemp();
+        } catch(e) { alert("Gagal Simpan."); }
+    };
+
+    // --- HISTORY LOGIC ---
+    window.filterHistory = (status, btn) => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        loadHistory(status);
+    };
+
+    function loadHistory(filter) {
+        const content = document.getElementById('history-content');
+        let q = query(collection(db, "setoran"), where("uid", "==", userNow.uid), orderBy("timestamp", "desc"));
+        if(filter !== 'all') q = query(collection(db, "setoran"), where("uid", "==", userNow.uid), where("status", "==", filter), orderBy("timestamp", "desc"));
+
+        onSnapshot(q, (snap) => {
+            content.innerHTML = snap.empty ? '<p style="text-align:center;font-size:12px;color:#94a3b8;padding:20px">Tidak ada riwayat.</p>' : '';
+            snap.forEach(doc => {
+                const d = doc.data();
+                const t = d.timestamp?.toDate().toLocaleString('id-ID', {day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'});
+                content.innerHTML += `
+                    <div style="padding:15px; border-bottom:1px solid #f1f5f9">
+                        <div style="display:flex; justify-content:space-between; margin-bottom:5px">
+                            <span style="font-size:11px; color:#94a3b8">${t || 'Proses...'}</span>
+                            <span class="status-badge ${d.status}">${d.status}</span>
+                        </div>
+                        <p style="font-size:13px; font-weight:600">${d.total} Akun Gmail</p>
+                    </div>
+                `;
+            });
+        });
+    }
+</script>
+
+</body>
+</html>
