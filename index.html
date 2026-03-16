@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Setor Gmail - List Mode</title>
+    <title>Setor Gmail Fresh - Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
@@ -11,24 +11,23 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
         body { background: var(--bg); padding: 20px; display: flex; justify-content: center; color: #1e293b; }
         .container { width: 100%; max-width: 500px; }
-        .card { background: white; border-radius: 20px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border: 1px solid #f1f5f9; }
+        .card { background: white; border-radius: 20px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
         h3 { font-size: 16px; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
         
         .form-input { margin-bottom: 12px; }
-        label { display: block; font-size: 12px; font-weight: 600; color: #64748b; margin-bottom: 5px; }
+        label { display: block; font-size: 12px; font-weight: 700; color: #64748b; margin-bottom: 5px; text-transform: uppercase; }
         input, select { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #e2e8f0; background: #f8fafc; outline: none; font-size: 14px; transition: 0.3s; }
-        input:focus { border-color: var(--primary); background: white; }
+        input:focus { border-color: var(--primary); background: white; box-shadow: 0 0 0 4px rgba(244, 63, 94, 0.1); }
         
-        /* List Antrean */
         .list-container { margin-top: 15px; border-top: 2px dashed #f1f5f9; padding-top: 15px; }
-        .item-gmail { background: #fdf2f8; padding: 12px 15px; border-radius: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; font-size: 13px; border-left: 4px solid var(--primary); }
-        .badge-count { background: var(--primary); color: white; padding: 2px 8px; border-radius: 20px; font-size: 12px; margin-left: auto; }
+        .item-gmail { background: #fff1f2; padding: 12px 15px; border-radius: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; font-size: 13px; border-left: 4px solid var(--primary); }
+        .badge-count { background: var(--primary); color: white; padding: 2px 10px; border-radius: 20px; font-size: 12px; margin-left: auto; }
 
-        .btn-add { width: 100%; background: #1e293b; color: white; border: none; padding: 12px; border-radius: 12px; font-weight: 600; cursor: pointer; margin-bottom: 10px; transition: 0.3s; }
-        .btn-add:hover { background: #0f172a; }
+        .btn-add { width: 100%; background: #1e293b; color: white; border: none; padding: 14px; border-radius: 12px; font-weight: 700; cursor: pointer; margin-bottom: 10px; transition: 0.3s; }
+        .btn-add:hover { background: #000; }
         
-        .btn-send { width: 100%; background: var(--primary); color: white; border: none; padding: 15px; border-radius: 12px; font-weight: 700; cursor: pointer; font-size: 15px; box-shadow: 0 4px 12px rgba(244, 63, 94, 0.2); transition: 0.3s; }
-        .btn-send:active { transform: scale(0.98); }
+        .btn-send { width: 100%; background: var(--primary); color: white; border: none; padding: 16px; border-radius: 12px; font-weight: 800; cursor: pointer; font-size: 15px; box-shadow: 0 4px 15px rgba(244, 63, 94, 0.3); transition: 0.3s; }
+        .btn-send:active { transform: scale(0.96); }
     </style>
 </head>
 <body>
@@ -38,39 +37,48 @@
         <h3><i class="fa-solid fa-plus-circle" style="color:var(--primary)"></i> Input Akun</h3>
         <div class="form-input">
             <label>Email Gmail</label>
-            <input type="email" id="temp-email" placeholder="nama@gmail.com">
+            <input type="email" id="temp-email" placeholder="contoh@gmail.com">
         </div>
         <div class="form-input">
             <label>Password</label>
             <input type="text" id="temp-pass" placeholder="Password akun">
         </div>
-        <button class="btn-add" onclick="tambahKeList()">+ Tambah ke Antrean</button>
+        <button class="btn-add" onclick="tambahKeList()">+ Tambah ke Daftar</button>
     </div>
 
     <div class="card">
         <div style="display: flex; align-items: center; margin-bottom: 15px;">
-            <h3><i class="fa-solid fa-list-ul" style="color:var(--primary)"></i> Antrean Setoran</h3>
+            <h3><i class="fa-solid fa-list-check" style="color:var(--primary)"></i> Daftar Setoran</h3>
             <span id="counter" class="badge-count">0</span>
         </div>
         
         <div id="list-antrean">
-            <p style="text-align: center; color: #94a3b8; font-size: 13px; padding: 10px;">Belum ada akun ditambah.</p>
+            <p style="text-align: center; color: #94a3b8; font-size: 13px; padding: 15px;">Daftar masih kosong.</p>
         </div>
         
         <div class="list-container">
-            <h3><i class="fa-solid fa-credit-card" style="color:var(--primary)"></i> Tujuan Pembayaran</h3>
+            <h3><i class="fa-solid fa-user-tag" style="color:var(--primary)"></i> Informasi Kontak & Pembayaran</h3>
+            
             <div class="form-input">
-                <label>Pilih Metode</label>
-                <select id="pay-metode">
-                    <option value="DANA">DANA</option>
-                    <option value="SeaBank">SeaBank</option>
-                </select>
+                <label>Nomor WhatsApp (Aktif)</label>
+                <input type="number" id="pay-wa" placeholder="08xxxxxxxx">
             </div>
-            <div class="form-input">
-                <label>Nomor Akun/HP</label>
-                <input type="number" id="pay-nomor" placeholder="Nomor DANA / Rekening">
+
+            <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 10px;">
+                <div class="form-input">
+                    <label>Metode</label>
+                    <select id="pay-metode">
+                        <option value="DANA">DANA</option>
+                        <option value="SeaBank">SeaBank</option>
+                    </select>
+                </div>
+                <div class="form-input">
+                    <label>No. Rek/E-Wallet</label>
+                    <input type="number" id="pay-nomor" placeholder="Nomor akun">
+                </div>
             </div>
-            <button class="btn-send" id="btnKirim" onclick="kirimSemua()">Kirim Semua Setoran</button>
+
+            <button class="btn-send" id="btnKirim" onclick="kirimSemua()">Kirim Semua Sekarang</button>
         </div>
     </div>
 </div>
@@ -78,30 +86,39 @@
 <script>
     let antreanAkun = [];
 
-    // Fungsi Tambah List
     function tambahKeList() {
-        const email = document.getElementById('temp-email').value;
-        const pass = document.getElementById('temp-pass').value;
+        const emailInput = document.getElementById('temp-email');
+        const passInput = document.getElementById('temp-pass');
+        const email = emailInput.value.trim().toLowerCase();
+        const pass = passInput.value.trim();
 
-        if(!email || !pass) {
-            alert("Isi email dan password dulu ya!");
-            return;
+        if(!email || !pass) return alert("Mohon lengkapi email dan password!");
+
+        // Validasi format @gmail.com
+        if(!email.endsWith("@gmail.com")) {
+            return alert("Error: Harus menggunakan format @gmail.com!");
+        }
+
+        // Validasi Duplikat
+        const isDuplicate = antreanAkun.some(item => item.email === email);
+        if(isDuplicate) {
+            return alert("Email ini sudah ada dalam daftar!");
         }
 
         antreanAkun.push({ email, pass });
         renderList();
 
-        document.getElementById('temp-email').value = "";
-        document.getElementById('temp-pass').value = "";
+        emailInput.value = "";
+        passInput.value = "";
+        emailInput.focus();
     }
 
-    // Fungsi Tampilkan List
     function renderList() {
         const container = document.getElementById('list-antrean');
         const counter = document.getElementById('counter');
         
         if(antreanAkun.length === 0) {
-            container.innerHTML = `<p style="text-align: center; color: #94a3b8; font-size: 13px; padding: 10px;">Belum ada akun ditambah.</p>`;
+            container.innerHTML = `<p style="text-align: center; color: #94a3b8; font-size: 13px; padding: 15px;">Daftar masih kosong.</p>`;
         } else {
             container.innerHTML = antreanAkun.map((item, index) => `
                 <div class="item-gmail">
@@ -118,56 +135,47 @@
         renderList();
     }
 
-    // FUNGSI KIRIM TELEGRAM (SUDAH FIX)
     async function kirimSemua() {
         const botToken = "8606712063:AAFNW8wXDOVfNy4IRzIUNT2PaavUJBayoy0";
         const chatId = "7233546224";
         
+        const wa = document.getElementById('pay-wa').value;
         const metode = document.getElementById('pay-metode').value;
         const nomor = document.getElementById('pay-nomor').value;
 
-        if(antreanAkun.length === 0) {
-            alert("Tambahkan minimal 1 akun dulu ke antrean!");
-            return;
-        }
-        if(!nomor) {
-            alert("Isi nomor DANA/SeaBank dulu!");
-            return;
-        }
+        if(antreanAkun.length === 0) return alert("Daftar akun masih kosong!");
+        if(!wa || !nomor) return alert("Lengkapi Nomor WA dan Pembayaran!");
 
-        // Susun daftar akun
         let listTeks = "";
         antreanAkun.forEach((item, i) => {
-            listTeks += `${i+1}. Email: ${item.email} | Pass: ${item.pass}\n`;
+            listTeks += `${i+1}. Email: \`${item.email}\` | Pass: \`${item.pass}\`\n`;
         });
 
-        const pesan = `🚀 SETORAN BARU!\nTotal: ${antreanAkun.length} Akun\n\n${listTeks}\nBayar ke: ${metode} (${nomor})`;
-
-        const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
+        const pesan = `🚀 *SETORAN GMAIL BARU*\n\n` +
+                      `👤 *Kontak WA:* [https://wa.me/${wa}](https://wa.me/${wa})\n` +
+                      `🔢 *Total:* ${antreanAkun.length} Akun\n\n` +
+                      `📋 *DAFTAR AKUN:*\n${listTeks}\n` +
+                      `💰 *PEMBAYARAN:*\n🏦 *Metode:* ${metode}\n💳 *Nomor:* \`${nomor}\`\n\n` +
+                      `🕒 _${new Date().toLocaleString('id-ID')}_`;
 
         try {
-            const response = await fetch(url, {
+            const response = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    chat_id: chatId,
-                    text: pesan
-                })
+                body: JSON.stringify({ chat_id: chatId, text: pesan, parse_mode: 'Markdown' })
             });
 
             const result = await response.json();
-
             if (result.ok) {
-                alert("✅ BERHASIL! Silakan cek Telegram kamu.");
+                alert("✅ BERHASIL! Data terkirim ke Telegram.");
                 antreanAkun = [];
                 renderList();
+                document.getElementById('pay-wa').value = "";
                 document.getElementById('pay-nomor').value = "";
             } else {
-                alert("❌ ERROR TELEGRAM: " + result.description);
+                alert("Gagal: " + result.description);
             }
-        } catch (err) {
-            alert("❌ KONEKSI GAGAL: " + err);
-        }
+        } catch (err) { alert("Error koneksi!"); }
     }
 </script>
 
