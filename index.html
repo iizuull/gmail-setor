@@ -3,93 +3,95 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Setor Gmail - High Performance</title>
+    <title>SetoranKu - Earn Rewards</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #2563eb; --bg: #f1f5f9; --text: #1e293b; --success: #22c55e; --danger: #ef4444; }
+        :root { --primary: #f43f5e; --bg: #f8fafc; --text: #1e293b; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
-        body { background: var(--bg); color: var(--text); padding-bottom: 50px; }
-        .nav { background: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; position: sticky; top: 0; z-index: 100; }
-        .container { max-width: 600px; margin: 20px auto; padding: 0 15px; }
-        .card { background: white; border-radius: 16px; padding: 20px; border: 1px solid #e2e8f0; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-        .hidden { display: none; }
-        
-        /* Input Style */
-        label { font-size: 12px; font-weight: 700; color: #64748b; margin-bottom: 8px; display: block; text-transform: uppercase; }
-        textarea, input, select { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #e2e8f0; background: #f8fafc; font-size: 14px; outline: none; transition: 0.2s; margin-bottom: 15px; }
-        textarea:focus, input:focus { border-color: var(--primary); background: white; }
-        .btn { width: 100%; padding: 14px; border-radius: 12px; border: none; font-weight: 700; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-primary:hover { opacity: 0.9; }
+        body { background: var(--bg); color: var(--text); padding-bottom: 80px; }
 
-        /* History Table Style */
-        .tab-menu { display: flex; gap: 8px; margin-bottom: 15px; overflow-x: auto; }
-        .tab { padding: 8px 16px; border-radius: 20px; background: #e2e8f0; font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap; }
-        .tab.active { background: var(--primary); color: white; }
+        /* Loading */
+        #loading { position: fixed; inset: 0; background: #fff; z-index: 9999; display: flex; align-items: center; justify-content: center; transition: 0.5s; }
+        .spinner { width: 35px; height: 35px; border: 4px solid #f3f3f3; border-top: 4px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .container { max-width: 500px; margin: 0 auto; padding: 20px; }
         
-        .history-item { padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        /* Header Card */
+        .header-card { background: linear-gradient(135deg, #f43f5e, #fb7185); border-radius: 24px; padding: 25px; color: white; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 10px 20px rgba(244, 63, 94, 0.2); }
+        .saldo-info p { font-size: 12px; font-weight: 600; opacity: 0.9; }
+        .saldo-info h2 { font-size: 26px; font-weight: 800; }
+        .btn-tarik { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.4); color: white; padding: 10px 18px; border-radius: 12px; font-weight: 700; cursor: pointer; backdrop-filter: blur(5px); transition: 0.3s; }
+        .btn-tarik:hover { background: rgba(255,255,255,0.4); }
+
+        /* Form & Card */
+        .card { background: white; border-radius: 20px; padding: 20px; border: 1px solid #e2e8f0; margin-bottom: 20px; }
+        h3 { font-size: 15px; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
+        textarea, input, select { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #e2e8f0; background: #f8fafc; font-size: 14px; outline: none; margin-bottom: 12px; }
+        .btn-send { background: var(--primary); color: white; border: none; width: 100%; padding: 15px; border-radius: 12px; font-weight: 800; cursor: pointer; transition: 0.3s; }
+        .btn-send:active { transform: scale(0.98); }
+
+        /* History */
+        .history-item { background: white; padding: 15px; border-radius: 15px; border: 1px solid #e2e8f0; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
         .status { padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; text-transform: uppercase; }
         .pending { background: #fef9c3; color: #854d0e; }
         .success { background: #dcfce7; color: #166534; }
         .failed { background: #fee2e2; color: #991b1b; }
 
-        /* Admin Action */
-        .admin-ctrl { display: flex; gap: 10px; margin-top: 15px; }
-        .btn-sm { padding: 8px; border-radius: 8px; flex: 1; border: none; font-weight: 700; cursor: pointer; color: white; font-size: 12px; }
+        /* Admin Controls */
+        .admin-box { background: #1e293b; color: white; padding: 15px; border-radius: 15px; margin-bottom: 20px; }
+        .admin-item { background: white; color: var(--text); padding: 15px; border-radius: 15px; margin-bottom: 10px; border: 1px solid #e2e8f0; }
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
-<div class="nav">
-    <div style="font-weight: 800; font-size: 18px; color: var(--primary);">SETORAN<span style="color: #1e293b;">KU</span></div>
-    <div id="auth-status"></div>
-</div>
+<div id="loading"><div class="spinner"></div></div>
 
 <div class="container">
-    <div id="auth-area" class="card">
-        <h2 style="margin-bottom: 10px;">Selamat Datang</h2>
-        <p style="color: #64748b; font-size: 14px; margin-bottom: 20px;">Silakan masuk untuk mulai mengelola setoran akun Gmail Anda.</p>
-        <button class="btn btn-primary" id="login-google">
-            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18"> Masuk dengan Google
+    <div id="auth-area" class="card hidden" style="text-align: center; margin-top: 50px;">
+        <h2 style="margin-bottom: 10px;">SetoranKu 👋</h2>
+        <p style="font-size: 14px; color: #64748b; margin-bottom: 25px;">Login untuk setor akun & tarik saldo.</p>
+        <button onclick="login()" class="btn-send" style="background:white; color:#1e293b; border:1px solid #ddd;">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18"> Masuk Google
         </button>
     </div>
 
     <div id="main-area" class="hidden">
-        
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <p style="font-weight: 800; font-size: 18px;">Dashboard</p>
+            <img id="user-pfp" src="" width="32" style="border-radius: 50%; cursor: pointer;" onclick="auth.signOut()">
+        </div>
+
+        <div class="header-card">
+            <div class="saldo-info">
+                <p>Saldo Kamu</p>
+                <h2 id="user-saldo">Rp 0</h2>
+            </div>
+            <button class="btn-tarik" onclick="requestTarik()">Tarik Saldo</button>
+        </div>
+
         <div id="user-view" class="hidden">
             <div class="card">
-                <label>Input Akun (Format: email|password)</label>
-                <textarea id="bulk-input" rows="5" placeholder="contoh1@gmail.com|pass123&#10;contoh2@gmail.com|pass456" oninput="countAccounts()"></textarea>
-                <p id="counter" style="font-size: 12px; font-weight: 700; margin-bottom: 15px; color: var(--primary);">Total: 0 Akun</p>
-                
-                <label>Nomor WhatsApp</label>
-                <input type="number" id="u-wa" placeholder="08xxxx">
-                
-                <label>Metode Pembayaran</label>
-                <div style="display: flex; gap: 10px;">
-                    <select id="u-metode" style="flex: 1;"><option>DANA</option><option>SeaBank</option></select>
-                    <input type="number" id="u-rek" style="flex: 2;" placeholder="Nomor Rekening/HP">
-                </div>
-                
-                <button class="btn btn-primary" onclick="prosesSetoran()">Kirim Setoran</button>
+                <h3><i class="fa-solid fa-paper-plane" style="color:var(--primary)"></i> Setor Akun</h3>
+                <textarea id="bulk-input" rows="4" placeholder="email|password" oninput="updateCount()"></textarea>
+                <p id="counter" style="font-size: 11px; font-weight: 700; color: var(--primary); margin-bottom: 10px;">0 Akun Terdeteksi</p>
+                <input type="number" id="pay-rek" placeholder="Nomor DANA/SeaBank">
+                <button class="btn-send" onclick="sendData()">Kirim Setoran</button>
             </div>
-
-            <div class="card">
-                <label>Riwayat Setoran</label>
-                <div id="u-history"></div>
-            </div>
+            
+            <p style="font-weight: 800; margin-bottom: 10px; font-size: 14px;">Riwayat Terbaru</p>
+            <div id="user-history"></div>
         </div>
 
         <div id="admin-view" class="hidden">
-            <div class="tab-menu">
-                <div class="tab active" onclick="loadAdmin('pending', this)">Pending</div>
-                <div class="tab" onclick="loadAdmin('success', this)">Selesai</div>
-                <div class="tab" onclick="loadAdmin('failed', this)">Gagal</div>
+            <div class="admin-box">
+                <p style="font-weight: 700;">Panel Admin (Fikor)</p>
+                <p style="font-size: 11px; opacity: 0.8;">Kelola setoran pending di bawah.</p>
             </div>
             <div id="admin-list"></div>
         </div>
-
     </div>
 </div>
 
@@ -108,113 +110,106 @@
     };
 
     const ADMIN_EMAIL = "fikorfikor0@gmail.com";
+    const HARGA_PER_AKUN = 2500; // Update Harga per Akun jadi 2500
+
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     const auth = getAuth(app);
     const provider = new GoogleAuthProvider();
 
-    let userNow = null;
-
-    // --- AUTH LOGIC ---
-    document.getElementById('login-google').onclick = () => signInWithPopup(auth, provider);
-    window.handleLogout = () => signOut(auth);
+    window.login = () => signInWithPopup(auth, provider);
 
     onAuthStateChanged(auth, (user) => {
+        const authArea = document.getElementById('auth-area');
+        const mainArea = document.getElementById('main-area');
         if(user) {
-            userNow = user;
-            document.getElementById('auth-area').classList.add('hidden');
-            document.getElementById('main-area').classList.remove('hidden');
-            document.getElementById('auth-status').innerHTML = `<img src="${user.photoURL}" width="30" style="border-radius:50%; cursor:pointer" onclick="handleLogout()">`;
-            
+            authArea.classList.add('hidden'); mainArea.classList.remove('hidden');
+            document.getElementById('user-pfp').src = user.photoURL;
             if(user.email === ADMIN_EMAIL) {
                 document.getElementById('admin-view').classList.remove('hidden');
-                loadAdmin('pending');
+                loadAdminData();
             } else {
                 document.getElementById('user-view').classList.remove('hidden');
-                loadUserHistory();
+                loadUserData(user.uid);
             }
         } else {
-            document.getElementById('auth-area').classList.remove('hidden');
-            document.getElementById('main-area').classList.add('hidden');
+            authArea.classList.remove('hidden'); mainArea.classList.add('hidden');
         }
+        document.getElementById('loading').classList.add('hidden');
     });
 
     // --- USER LOGIC ---
-    window.countAccounts = () => {
-        const text = document.getElementById('bulk-input').value.trim();
-        const count = text ? text.split('\n').length : 0;
-        document.getElementById('counter').innerText = `Total: ${count} Akun`;
+    window.updateCount = () => {
+        const val = document.getElementById('bulk-input').value.trim();
+        document.getElementById('counter').innerText = `${val ? val.split('\n').length : 0} Akun Terdeteksi`;
     };
 
-    window.prosesSetoran = async () => {
+    window.sendData = async () => {
         const input = document.getElementById('bulk-input').value.trim();
-        const wa = document.getElementById('u-wa').value;
-        const rek = document.getElementById('u-rek').value;
-        if(!input || !wa || !rek) return alert("Harap isi semua data!");
-
-        const listAkun = input.split('\n').map(line => {
-            const [email, pass] = line.split('|');
-            return { email: email?.trim(), pass: pass?.trim() };
+        const rek = document.getElementById('pay-rek').value;
+        if(!input || !rek) return alert("Isi data!");
+        
+        const list = input.split('\n').map(l => {
+            const [e, p] = l.split('|');
+            return { email: e?.trim(), pass: p?.trim() };
         });
 
-        try {
-            await addDoc(collection(db, "setoran"), {
-                uid: userNow.uid, uName: userNow.displayName,
-                wa, rek, akun: listAkun, total: listAkun.length,
-                metode: document.getElementById('u-metode').value,
-                status: 'pending', timestamp: serverTimestamp()
-            });
-            alert("Setoran terkirim!");
-            document.getElementById('bulk-input').value = ""; countAccounts();
-        } catch(e) { alert("Error: " + e.message); }
+        await addDoc(collection(db, "setoran"), {
+            uid: auth.currentUser.uid, uName: auth.currentUser.displayName,
+            akun: list, total: list.length, rek, status: 'pending', timestamp: serverTimestamp()
+        });
+        alert("Terkirim!"); document.getElementById('bulk-input').value = "";
     };
 
-    function loadUserHistory() {
-        const q = query(collection(db, "setoran"), where("uid", "==", userNow.uid), orderBy("timestamp", "desc"));
+    function loadUserData(uid) {
+        const q = query(collection(db, "setoran"), where("uid", "==", uid), orderBy("timestamp", "desc"));
         onSnapshot(q, (s) => {
-            document.getElementById('u-history').innerHTML = s.docs.map(d => {
+            let totalAcc = 0;
+            document.getElementById('user-history').innerHTML = s.docs.map(d => {
                 const data = d.data();
+                if(data.status === 'success') totalAcc += data.total;
                 return `<div class="history-item">
-                    <div>
-                        <p style="font-weight:700; font-size:14px">${data.total} Akun Gmail</p>
-                        <p style="font-size:11px; color:#64748b">${data.metode} - ${data.rek}</p>
-                    </div>
+                    <div><p style="font-weight:700">${data.total} Akun</p><p style="font-size:10px; color:gray">${data.timestamp?.toDate().toLocaleDateString()}</p></div>
                     <span class="status ${data.status}">${data.status}</span>
+                </div>`;
+            }).join('');
+            // Kalkulasi Saldo dengan harga 2500
+            document.getElementById('user-saldo').innerText = `Rp ${(totalAcc * HARGA_PER_AKUN).toLocaleString()}`;
+        });
+    }
+
+    window.requestTarik = () => {
+        const saldo = document.getElementById('user-saldo').innerText;
+        if(saldo === "Rp 0") return alert("Saldo kamu masih kosong!");
+        const botToken = "8606712063:AAFNW8wXDOVfNy4IRzIUNT2PaavUJBayoy0";
+        const chatId = "7233546224";
+        const pesan = `💸 *PENARIKAN SALDO*\nUser: ${auth.currentUser.displayName}\nJumlah: ${saldo}\nSegera diproses!`;
+        fetch(`https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(pesan)}&parse_mode=Markdown`);
+        alert("Permintaan tarik saldo dikirim ke admin!");
+    };
+
+    // --- ADMIN LOGIC ---
+    function loadAdminData() {
+        const q = query(collection(db, "setoran"), where("status", "==", "pending"), orderBy("timestamp", "desc"));
+        onSnapshot(q, (s) => {
+            document.getElementById('admin-list').innerHTML = s.docs.map(d => {
+                const data = d.data();
+                return `<div class="admin-item">
+                    <p><strong>${data.uName}</strong> (${data.rek})</p>
+                    <div style="font-size:11px; background:#f8fafc; padding:8px; border-radius:8px; margin:8px 0; border:1px solid #eee">
+                        ${data.akun.map(a => `${a.email}|${a.pass}`).join('<br>')}
+                    </div>
+                    <div style="display:flex; gap:8px">
+                        <button onclick="updateStatus('${d.id}', 'success')" style="flex:1; padding:10px; background:#22c55e; color:white; border:none; border-radius:10px; font-weight:700">ACC</button>
+                        <button onclick="updateStatus('${d.id}', 'failed')" style="flex:1; padding:10px; background:#ef4444; color:white; border:none; border-radius:10px; font-weight:700">TOLAK</button>
+                    </div>
                 </div>`;
             }).join('');
         });
     }
 
-    // --- ADMIN LOGIC ---
-    window.loadAdmin = (status, el) => {
-        if(el) {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            el.classList.add('active');
-        }
-        const q = query(collection(db, "setoran"), where("status", "==", status), orderBy("timestamp", "desc"));
-        onSnapshot(q, (s) => {
-            document.getElementById('admin-list').innerHTML = s.docs.map(d => {
-                const data = d.data();
-                return `<div class="card" style="font-size:13px">
-                    <p><strong>Dari:</strong> ${data.uName} (${data.wa})</p>
-                    <p><strong>Payment:</strong> ${data.metode} - ${data.rek}</p>
-                    <div style="background:#f1f5f9; padding:10px; border-radius:8px; margin:10px 0; font-family:monospace">
-                        ${data.akun.map(a => `${a.email}|${a.pass}`).join('<br>')}
-                    </div>
-                    ${data.status === 'pending' ? `
-                    <div class="admin-ctrl">
-                        <button class="btn-sm" style="background:var(--success)" onclick="updateStatus('${d.id}', 'success')">ACC</button>
-                        <button class="btn-sm" style="background:var(--danger)" onclick="updateStatus('${d.id}', 'failed')">TOLAK</button>
-                    </div>` : ''}
-                </div>`;
-            }).join('');
-        });
-    };
-
     window.updateStatus = async (id, stat) => {
-        if(confirm(`Yakin mengubah ke ${stat}?`)) {
-            await updateDoc(doc(db, "setoran", id), { status: stat });
-        }
+        await updateDoc(doc(db, "setoran", id), { status: stat });
     };
 </script>
 
