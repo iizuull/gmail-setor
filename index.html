@@ -3,215 +3,357 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SetoranKu - Earn Rewards</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    <title>2FA Pro Cloud v28.5</title>
+    <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-database-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/otpauth/9.1.2/otpauth.umd.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
-        :root { --primary: #f43f5e; --bg: #f8fafc; --text: #1e293b; }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
-        body { background: var(--bg); color: var(--text); padding-bottom: 80px; }
+        :root { --primary: #2563eb; --bg: #000; --card: #121212; --border: #333; --text: #fff; --gray: #888; --danger: #ef4444; --success: #22c55e; --orange: #f59e0b; --purple: #a855f7; }
+        body { font-family: -apple-system, sans-serif; background: var(--bg); color: var(--text); display: flex; justify-content: center; padding: 10px; margin: 0; }
+        .wrapper { width: 100%; max-width: 480px; padding-bottom: 100px; }
+        .header { margin-bottom: 15px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-top: 10px; }
+        .stat-box { background: #1a1a1a; padding: 6px; border-radius: 6px; text-align: center; border: 1px solid var(--border); }
+        .stat-box small { display: block; font-size: 8px; color: var(--gray); text-transform: uppercase; }
+        .stat-box b { font-size: 12px; }
 
-        /* Loading */
-        #loading { position: fixed; inset: 0; background: #fff; z-index: 9999; display: flex; align-items: center; justify-content: center; transition: 0.5s; }
-        .spinner { width: 35px; height: 35px; border: 4px solid #f3f3f3; border-top: 4px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .pw-quick-bar { background: rgba(245, 158, 11, 0.1); border: 1px dashed var(--orange); padding: 8px; border-radius: 8px; margin: 10px 0; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
 
-        .container { max-width: 500px; margin: 0 auto; padding: 20px; }
+        .filter-tabs { display: flex; gap: 6px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 8px; scrollbar-width: none; }
+        .tab { flex: 0 0 auto; min-width: 75px; padding: 10px 5px; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: var(--gray); cursor: pointer; font-size: 10px; font-weight: bold; text-align: center; }
+        .tab.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+        .selection-bar { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: #1a1a1a; padding: 12px; border-top: 2px solid var(--primary); z-index: 1000; display: none; }
+        .btn-bulk { border: none; font-size: 10px; font-weight: bold; cursor: pointer; text-transform: uppercase; border-radius: 6px; padding: 10px 5px; }
+        .grid-bulk { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; width: 100%; }
+
+        .card-form { background: var(--card); padding: 15px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 20px; }
+        input, textarea { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid var(--border); border-radius: 8px; background: #000; color: #fff; box-sizing: border-box; outline: none; font-family: inherit; }
         
-        /* Header Card */
-        .header-card { background: linear-gradient(135deg, #f43f5e, #fb7185); border-radius: 24px; padding: 25px; color: white; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 10px 20px rgba(244, 63, 94, 0.2); }
-        .saldo-info p { font-size: 12px; font-weight: 600; opacity: 0.9; }
-        .saldo-info h2 { font-size: 26px; font-weight: 800; }
-        .btn-tarik { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.4); color: white; padding: 10px 18px; border-radius: 12px; font-weight: 700; cursor: pointer; backdrop-filter: blur(5px); transition: 0.3s; }
-        .btn-tarik:hover { background: rgba(255,255,255,0.4); }
+        /* DROP ZONE STYLE (DRAG & DROP) */
+        .drop-zone { width: 100%; padding: 25px 10px; background: rgba(37, 99, 235, 0.05); border: 2px dashed var(--primary); border-radius: 10px; text-align: center; font-weight: bold; font-size: 12px; color: #fff; cursor: pointer; box-sizing: border-box; margin-bottom: 15px; transition: 0.2s; }
+        .drop-zone.drag-over { background: rgba(37, 99, 235, 0.2); border-color: var(--success); color: var(--success); }
+        #reader { width: 100%; border-radius: 10px; overflow: hidden; margin-bottom: 10px; display: none; border: 1px solid var(--primary) !important; }
 
-        /* Form & Card */
-        .card { background: white; border-radius: 20px; padding: 20px; border: 1px solid #e2e8f0; margin-bottom: 20px; }
-        h3 { font-size: 15px; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
-        textarea, input, select { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #e2e8f0; background: #f8fafc; font-size: 14px; outline: none; margin-bottom: 12px; }
-        .btn-send { background: var(--primary); color: white; border: none; width: 100%; padding: 15px; border-radius: 12px; font-weight: 800; cursor: pointer; transition: 0.3s; }
-        .btn-send:active { transform: scale(0.98); }
+        .btn-save { width: 100%; padding: 14px; background: #fff; color: #000; border: none; border-radius: 8px; cursor: pointer; font-weight: 800; text-transform: uppercase; }
 
-        /* History */
-        .history-item { background: white; padding: 15px; border-radius: 15px; border: 1px solid #e2e8f0; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
-        .status { padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; text-transform: uppercase; }
-        .pending { background: #fef9c3; color: #854d0e; }
-        .success { background: #dcfce7; color: #166534; }
-        .failed { background: #fee2e2; color: #991b1b; }
+        .acc-item { background: var(--card); padding: 12px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 10px; display: flex; gap: 10px; }
+        .acc-check { width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer; }
+        .email-display { font-weight: bold; font-size: 14px; display: block; }
+        .key-display { font-family: monospace; font-size: 11px; color: var(--gray); display: block; margin-top: 2px; }
+        
+        .status-badge { font-size: 8px; padding: 4px 8px; border-radius: 5px; cursor: pointer; font-weight: 900; border: none; }
+        .status-uploaded { background: var(--success); color: #000; }
+        .status-pending { background: var(--orange); color: #000; }
+        .status-sold { background: var(--purple); color: #fff; }
+        .status-disable { background: var(--danger); color: #fff; }
 
-        /* Admin Controls */
-        .admin-box { background: #1e293b; color: white; padding: 15px; border-radius: 15px; margin-bottom: 20px; }
-        .admin-item { background: white; color: var(--text); padding: 15px; border-radius: 15px; margin-bottom: 10px; border: 1px solid #e2e8f0; }
-        .hidden { display: none !important; }
+        .otp-box { display: flex; align-items: center; justify-content: space-between; background: rgba(37,99,235,0.05); padding: 10px; border-radius: 8px; margin: 10px 0; border: 1px solid var(--border); }
+        .otp-num { font-family: monospace; font-size: 26px; font-weight: 800; color: var(--primary); letter-spacing: 2px; }
+        .btn-action-small { background: #1a1a1a; border: 1px solid var(--border); color: #fff; padding: 5px 10px; border-radius: 6px; font-size: 10px; cursor: pointer; font-weight: bold; }
+        #main-app, #login-screen { display: none; }
     </style>
 </head>
 <body>
-
-<div id="loading"><div class="spinner"></div></div>
-
-<div class="container">
-    <div id="auth-area" class="card hidden" style="text-align: center; margin-top: 50px;">
-        <h2 style="margin-bottom: 10px;">SetoranKu 👋</h2>
-        <p style="font-size: 14px; color: #64748b; margin-bottom: 25px;">Login untuk setor akun & tarik saldo.</p>
-        <button onclick="login()" class="btn-send" style="background:white; color:#1e293b; border:1px solid #ddd;">
-            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18"> Masuk Google
-        </button>
+<div class="wrapper">
+    <div id="login-screen" style="text-align: center; margin-top: 100px;">
+        <h2>2FA AUTH CLOUD</h2>
+        <button onclick="login()" style="padding: 15px; width: 100%; border-radius: 10px; font-weight: bold; cursor: pointer; background: white; color: black;">SIGN IN WITH GOOGLE</button>
     </div>
 
-    <div id="main-area" class="hidden">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-            <p style="font-weight: 800; font-size: 18px;">Dashboard</p>
-            <img id="user-pfp" src="" width="32" style="border-radius: 50%; cursor: pointer;" onclick="auth.signOut()">
+    <div id="main-app">
+        <div class="header">
+            <div style="display:flex; justify-content:space-between; align-items:center">
+                <h3 style="margin:0">Inventory Global</h3>
+                <button onclick="logout()" style="background:none; border:none; color:var(--danger); cursor:pointer; font-size:10px">LOGOUT</button>
+            </div>
+            <div class="pw-quick-bar" onclick="copyTextQuick('sayamanusia', this)">
+                <span style="font-size:11px; font-weight:bold; color:var(--orange)">PW: sayamanusia</span>
+                <span id="pwLabel" style="font-size:9px; color:var(--gray)">KLIK UNTUK SALIN</span>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-box"><small>Total</small><b id="countTotal">0</b></div>
+                <div class="stat-box"><small style="color:var(--orange)">Stok</small><b id="countBelum">0</b></div>
+                <div class="stat-box"><small style="color:var(--success)">G2G</small><b id="countG2G">0</b></div>
+                <div class="stat-box"><small style="color:var(--purple)">Sold</small><b id="countSold">0</b></div>
+                <div class="stat-box" style="grid-column: span 4; margin-top: 5px;"><small style="color:var(--danger)">Mati / Disable</small><b id="countDisable">0</b></div>
+            </div>
         </div>
 
-        <div class="header-card">
-            <div class="saldo-info">
-                <p>Saldo Kamu</p>
-                <h2 id="user-saldo">Rp 0</h2>
-            </div>
-            <button class="btn-tarik" onclick="requestTarik()">Tarik Saldo</button>
+        <div class="card-form">
+            <!-- DRAG & DROP ZONE -->
+            <div id="drop-zone" class="drop-zone">🚀 DRAG & DROP GAMBAR QR KE SINI <br><span style="font-size:10px; font-weight:normal; color:var(--gray)">(Bisa seret langsung dari tab browser lain / klik untuk upload)</span></div>
+            <input type="file" id="qr-file-input" accept="image/*" style="display:none" onchange="processFile(this.files[0])">
+            <div id="reader"></div>
+
+            <input type="text" id="accName" placeholder="Email Akun" autocomplete="off">
+            <input type="text" id="accKey" placeholder="Secret Key" oninput="this.value = this.value.replace(/\s/g, '').toUpperCase()" autocomplete="off">
+            <button class="btn-save" onclick="saveAccount()">Save Account</button>
         </div>
 
-        <div id="user-view" class="hidden">
-            <div class="card">
-                <h3><i class="fa-solid fa-paper-plane" style="color:var(--primary)"></i> Setor Akun</h3>
-                <textarea id="bulk-input" rows="4" placeholder="email|password" oninput="updateCount()"></textarea>
-                <p id="counter" style="font-size: 11px; font-weight: 700; color: var(--primary); margin-bottom: 10px;">0 Akun Terdeteksi</p>
-                <input type="number" id="pay-rek" placeholder="Nomor DANA/SeaBank">
-                <button class="btn-send" onclick="sendData()">Kirim Setoran</button>
-            </div>
-            
-            <p style="font-weight: 800; margin-bottom: 10px; font-size: 14px;">Riwayat Terbaru</p>
-            <div id="user-history"></div>
+        <div class="filter-tabs">
+            <div class="tab active" onclick="setFilter('ALL', this)">SEMUA</div>
+            <div class="tab" onclick="setFilter('STOK', this)">STOK</div>
+            <div class="tab" onclick="setFilter('G2G', this)">G2G</div>
+            <div class="tab" onclick="setFilter('SOLD', this)">SOLD</div>
+            <div class="tab" onclick="setFilter('DISABLE', this)" style="border-color: var(--danger); color: var(--danger);">DISABLE</div>
         </div>
 
-        <div id="admin-view" class="hidden">
-            <div class="admin-box">
-                <p style="font-weight: 700;">Panel Admin (Fikor)</p>
-                <p style="font-size: 11px; opacity: 0.8;">Kelola setoran pending di bawah.</p>
-            </div>
-            <div id="admin-list"></div>
+        <textarea id="searchInput" style="height: 60px; resize: none;" placeholder="Cari banyak email (paste list ke bawah)..." oninput="render()"></textarea>
+        <div id="displayList"></div>
+    </div>
+
+    <!-- SELECTION BAR -->
+    <div class="selection-bar" id="selectionBar">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px">
+            <label style="font-weight:bold; font-size:12px"><input type="checkbox" id="selectAll" onclick="toggleSelectAll()"> Select All</label>
+            <span id="selCount" style="font-size:11px; color:var(--primary)">0 selected</span>
+        </div>
+        <div class="grid-bulk">
+            <button class="btn-bulk" style="background:var(--primary); color:white" onclick="bulkCopy()">Copy</button>
+            <button class="btn-bulk" style="background:var(--orange); color:black" onclick="bulkUpdateStatus('STOK')">Stok</button>
+            <button class="btn-bulk" style="background:var(--success); color:black" onclick="bulkUpdateStatus('G2G')">G2G</button>
+            <button class="btn-bulk" style="background:var(--purple); color:white" onclick="bulkUpdateStatus('SOLD')">Sold</button>
+            <button class="btn-bulk" style="background:var(--danger); color:white; grid-column: span 4; margin-top: 5px;" onclick="bulkUpdateStatus('DISABLE')">Pindahkan ke Disable (Mati)</button>
+            <button id="btnBulkDelete" class="btn-bulk" style="background:var(--gray); color:white; grid-column: span 4; margin-top: 5px; display: none;" onclick="bulkDelete()">Hapus Permanen</button>
         </div>
     </div>
 </div>
 
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, addDoc, query, onSnapshot, orderBy, where, serverTimestamp, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-    import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-
+<script>
     const firebaseConfig = {
-        apiKey: "AIzaSyCsF9mAj8UIbNOZFdd9F_7vvoVFMBm3Aik",
-        authDomain: "mail-id-2948b.firebaseapp.com",
-        projectId: "mail-id-2948b",
-        storageBucket: "mail-id-2948b.firebasestorage.app",
-        messagingSenderId: "184711293174",
-        appId: "1:184711293174:web:bc158d490893cd3757a4d7"
+        apiKey: "AIzaSyC3mIXsaFlLbpKm5qufpP6Trr9S1DXixKk",
+        authDomain: "fanews-b8b0f.firebaseapp.com",
+        databaseURL: "https://fanews-b8b0f-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "fanews-b8b0f",
+        storageBucket: "fanews-b8b0f.firebasestorage.app",
+        messagingSenderId: "514202109743",
+        appId: "1:514202109743:web:ef7f55adfaed815bbc43da"
     };
 
-    const ADMIN_EMAIL = "fikorfikor0@gmail.com";
-    const HARGA_PER_AKUN = 2500; // Update Harga per Akun jadi 2500
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.database();
+    let userUid = null, accounts = [], currentFilter = 'ALL';
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const auth = getAuth(app);
-    const provider = new GoogleAuthProvider();
-
-    window.login = () => signInWithPopup(auth, provider);
-
-    onAuthStateChanged(auth, (user) => {
-        const authArea = document.getElementById('auth-area');
-        const mainArea = document.getElementById('main-area');
-        if(user) {
-            authArea.classList.add('hidden'); mainArea.classList.remove('hidden');
-            document.getElementById('user-pfp').src = user.photoURL;
-            if(user.email === ADMIN_EMAIL) {
-                document.getElementById('admin-view').classList.remove('hidden');
-                loadAdminData();
-            } else {
-                document.getElementById('user-view').classList.remove('hidden');
-                loadUserData(user.uid);
-            }
+    auth.onAuthStateChanged(user => {
+        if (user) {
+            userUid = user.uid;
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('main-app').style.display = 'block';
+            loadData();
+            initDragAndDrop();
         } else {
-            authArea.classList.remove('hidden'); mainArea.classList.add('hidden');
+            document.getElementById('login-screen').style.display = 'block';
+            document.getElementById('main-app').style.display = 'none';
         }
-        document.getElementById('loading').classList.add('hidden');
     });
 
-    // --- USER LOGIC ---
-    window.updateCount = () => {
-        const val = document.getElementById('bulk-input').value.trim();
-        document.getElementById('counter').innerText = `${val ? val.split('\n').length : 0} Akun Terdeteksi`;
-    };
+    function login() { auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); }
+    function logout() { if(confirm("Logout?")) auth.signOut(); }
 
-    window.sendData = async () => {
-        const input = document.getElementById('bulk-input').value.trim();
-        const rek = document.getElementById('pay-rek').value;
-        if(!input || !rek) return alert("Isi data!");
+    // LOGIKA DRAG & DROP & CLICK TO UPLOAD
+    function initDragAndDrop() {
+        const zone = document.getElementById('drop-zone');
         
-        const list = input.split('\n').map(l => {
-            const [e, p] = l.split('|');
-            return { email: e?.trim(), pass: p?.trim() };
-        });
+        // Klik kotak untuk upload manual dari file manager laptop
+        zone.addEventListener('click', () => document.getElementById('qr-file-input').click());
 
-        await addDoc(collection(db, "setoran"), {
-            uid: auth.currentUser.uid, uName: auth.currentUser.displayName,
-            akun: list, total: list.length, rek, status: 'pending', timestamp: serverTimestamp()
-        });
-        alert("Terkirim!"); document.getElementById('bulk-input').value = "";
-    };
+        // Efek visual saat file diseret di atas kotak
+        window.addEventListener('dragover', (e) => e.preventDefault());
+        zone.addEventListener('dragenter', () => zone.classList.add('drag-over'));
+        zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
 
-    function loadUserData(uid) {
-        const q = query(collection(db, "setoran"), where("uid", "==", uid), orderBy("timestamp", "desc"));
-        onSnapshot(q, (s) => {
-            let totalAcc = 0;
-            document.getElementById('user-history').innerHTML = s.docs.map(d => {
-                const data = d.data();
-                if(data.status === 'success') totalAcc += data.total;
-                return `<div class="history-item">
-                    <div><p style="font-weight:700">${data.total} Akun</p><p style="font-size:10px; color:gray">${data.timestamp?.toDate().toLocaleDateString()}</p></div>
-                    <span class="status ${data.status}">${data.status}</span>
-                </div>`;
-            }).join('');
-            // Kalkulasi Saldo dengan harga 2500
-            document.getElementById('user-saldo').innerText = `Rp ${(totalAcc * HARGA_PER_AKUN).toLocaleString()}`;
-        });
-    }
-
-    window.requestTarik = () => {
-        const saldo = document.getElementById('user-saldo').innerText;
-        if(saldo === "Rp 0") return alert("Saldo kamu masih kosong!");
-        const botToken = "8606712063:AAFNW8wXDOVfNy4IRzIUNT2PaavUJBayoy0";
-        const chatId = "7233546224";
-        const pesan = `💸 *PENARIKAN SALDO*\nUser: ${auth.currentUser.displayName}\nJumlah: ${saldo}\nSegera diproses!`;
-        fetch(`https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(pesan)}&parse_mode=Markdown`);
-        alert("Permintaan tarik saldo dikirim ke admin!");
-    };
-
-    // --- ADMIN LOGIC ---
-    function loadAdminData() {
-        const q = query(collection(db, "setoran"), where("status", "==", "pending"), orderBy("timestamp", "desc"));
-        onSnapshot(q, (s) => {
-            document.getElementById('admin-list').innerHTML = s.docs.map(d => {
-                const data = d.data();
-                return `<div class="admin-item">
-                    <p><strong>${data.uName}</strong> (${data.rek})</p>
-                    <div style="font-size:11px; background:#f8fafc; padding:8px; border-radius:8px; margin:8px 0; border:1px solid #eee">
-                        ${data.akun.map(a => `${a.email}|${a.pass}`).join('<br>')}
-                    </div>
-                    <div style="display:flex; gap:8px">
-                        <button onclick="updateStatus('${d.id}', 'success')" style="flex:1; padding:10px; background:#22c55e; color:white; border:none; border-radius:10px; font-weight:700">ACC</button>
-                        <button onclick="updateStatus('${d.id}', 'failed')" style="flex:1; padding:10px; background:#ef4444; color:white; border:none; border-radius:10px; font-weight:700">TOLAK</button>
-                    </div>
-                </div>`;
-            }).join('');
+        // Saat file dilepas (Dropped)
+        zone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            zone.classList.remove('drag-over');
+            
+            // Cek apakah yang di-drag berupa file lokal atau element gambar dari web sebelah
+            if (e.dataTransfer.files.length > 0) {
+                processFile(e.dataTransfer.files[0]);
+            } else {
+                // Jika drag langsung gambar dari browser sebelah (URL Image / Base64)
+                const htmlData = e.dataTransfer.getData('text/html');
+                if (htmlData) {
+                    const doc = new DOMParser().parseFromString(htmlData, 'text/html');
+                    const img = doc.querySelector('img');
+                    if (img && img.src) scanFromUrl(img.src);
+                }
+            }
         });
     }
 
-    window.updateStatus = async (id, stat) => {
-        await updateDoc(doc(db, "setoran", id), { status: stat });
-    };
+    function processFile(file) {
+        if (!file || !file.type.startsWith('image/')) return;
+        const scanner = new Html5Qrcode("reader");
+        scanner.scanFile(file, true)
+            .then(text => parseQrCode(text))
+            .catch(() => alert("Gagal mendeteksi QR Code dari file ini!"));
+    }
+
+    function scanFromUrl(url) {
+        // Mengubah image URL web sebelah menjadi blob agar bisa di-scan oleh library
+        const scanner = new Html5Qrcode("reader");
+        fetch(url)
+            .then(res => res.blob())
+            .then(blob => scanner.scanFile(blob, true))
+            .then(text => parseQrCode(text))
+            .catch(() => alert("Gagal memproses gambar dari browser sebelah. Coba save gambarnya lalu drag filenya ke sini."));
+    }
+
+    function parseQrCode(url) {
+        try {
+            const uri = new URL(url);
+            const secret = uri.searchParams.get("secret");
+            let label = decodeURIComponent(uri.pathname.split('/').pop());
+            let email = label.includes(':') ? label.split(':').pop().trim() : label.trim();
+            if (secret && email) {
+                document.getElementById('accName').value = email;
+                document.getElementById('accKey').value = secret.toUpperCase();
+                saveAccount(); // Langsung auto-save
+            }
+        } catch (e) {
+            alert("QR Code terdeteksi, tapi format data di dalamnya bukan 2FA!");
+        }
+    }
+
+    // FIREBASE LOGIC (Tetap utuh seperti v25.6)
+    function loadData() {
+        db.ref('users/' + userUid).on('value', snapshot => {
+            accounts = [];
+            snapshot.forEach(child => { accounts.push({ id: child.key, ...child.val() }); });
+            document.getElementById('countTotal').innerText = accounts.length;
+            document.getElementById('countBelum').innerText = accounts.filter(a => a.status === 'STOK').length;
+            document.getElementById('countG2G').innerText = accounts.filter(a => a.status === 'G2G').length;
+            document.getElementById('countSold').innerText = accounts.filter(a => a.status === 'SOLD').length;
+            document.getElementById('countDisable').innerText = accounts.filter(a => a.status === 'DISABLE').length;
+            render();
+        });
+    }
+
+    function saveAccount() {
+        const nIn = document.getElementById('accName'), kIn = document.getElementById('accKey');
+        const name = nIn.value.trim().toLowerCase(), key = kIn.value.replace(/\s/g, '').toUpperCase();
+        if (!name || !key) return;
+        if (accounts.some(acc => acc.name.toLowerCase() === name)) { alert("Gagal! Email sudah ada."); return; }
+        const date = new Date().toLocaleString('id-ID', { day:'2-digit', month:'short' });
+        db.ref('users/' + userUid).push({ name, key, status: 'STOK', date }).then(() => {
+            nIn.value = ''; kIn.value = '';
+        });
+    }
+
+    function render() {
+        const div = document.getElementById('displayList');
+        const searchRaw = document.getElementById('searchInput').value.trim().toLowerCase();
+        const searchTerms = searchRaw.split(/[\n\s,]+/).filter(t => t !== "");
+        let filtered = [...accounts].reverse();
+        if (currentFilter !== 'ALL') filtered = filtered.filter(a => a.status === currentFilter);
+        if (searchTerms.length > 0) {
+            filtered = filtered.filter(acc => searchTerms.some(term => acc.name.toLowerCase().includes(term)));
+        }
+        
+        div.innerHTML = '';
+        filtered.forEach(acc => {
+            let sClass = acc.status === 'G2G' ? 'status-uploaded' : (acc.status === 'SOLD' ? 'status-sold' : (acc.status === 'DISABLE' ? 'status-disable' : 'status-pending'));
+            div.innerHTML += `
+                <div class="acc-item" data-id="${acc.id}">
+                    <input type="checkbox" class="acc-check" onclick="updateSelCount()">
+                    <div style="flex-grow:1">
+                        <span style="font-size:8px; color:var(--gray)">${acc.date || ''}</span>
+                        <div style="display:flex; justify-content:space-between">
+                            <div><span class="email-display">${acc.name}</span><span class="key-display">${acc.key.match(/.{1,4}/g).join(' ')}</span></div>
+                            <button class="status-badge ${sClass}" onclick="cycleStatus('${acc.id}', '${acc.status}')">${acc.status || 'STOK'}</button>
+                        </div>
+                        <div class="otp-box">
+                            <div style="display:flex; align-items:center; gap:8px"><span style="font-size:8px; color:var(--gray)" id="t-${acc.id}">30s</span><div class="otp-num" id="otp-${acc.id}">------</div></div>
+                            <button class="btn-action-small" id="btn-${acc.id}" onclick="copyOTP('${acc.id}')">COPY OTP</button>
+                        </div>
+                        <div style="display:flex; gap:10px">
+                            <button class="btn-action-small" onclick="copyText('${acc.name}', this, 'MAIL')">MAIL</button>
+                            <button class="btn-action-small" onclick="copyText('${acc.key}', this, 'KEY')">KEY</button>
+                            <button onclick="if(confirm('Hapus?')) db.ref('users/${userUid}/${acc.id}').remove()" style="background:none; border:none; color:var(--danger); cursor:pointer; font-size:10px; margin-left:auto">Hapus</button>
+                        </div>
+                    </div>
+                </div>`;
+        });
+        updateSelCount();
+    }
+
+    function cycleStatus(id, current) {
+        let flow = ['STOK','G2G','SOLD','DISABLE'];
+        let next = flow[(flow.indexOf(current) + 1) % flow.length];
+        db.ref(`users/${userUid}/${id}`).update({ status: next });
+    }
+
+    function bulkUpdateStatus(s) {
+        document.querySelectorAll('.acc-item').forEach(item => {
+            if (item.querySelector('.acc-check').checked) db.ref(`users/${userUid}/${item.getAttribute('data-id')}`).update({ status: s });
+        });
+        document.getElementById('selectAll').checked = false;
+        updateSelCount();
+    }
+
+    function bulkDelete() {
+        if (confirm("Hapus terpilih?")) {
+            document.querySelectorAll('.acc-item').forEach(item => {
+                if (item.querySelector('.acc-check').checked) db.ref(`users/${userUid}/${item.getAttribute('data-id')}`).remove();
+            });
+        }
+    }
+
+    function bulkCopy() {
+        let text = "";
+        document.querySelectorAll('.acc-item').forEach(item => {
+            if (item.querySelector('.acc-check').checked) {
+                const acc = accounts.find(a => a.id === item.getAttribute('data-id'));
+                text += `${acc.name}\n${acc.key}\n\n`;
+            }
+        });
+        navigator.clipboard.writeText(text.trim());
+        alert("Copied!");
+    }
+
+    function toggleSelectAll() {
+        const checked = document.getElementById('selectAll').checked;
+        document.querySelectorAll('.acc-check').forEach(c => c.checked = checked);
+        updateSelCount();
+    }
+
+    function updateSelCount() {
+        const count = document.querySelectorAll('.acc-check:checked').length;
+        document.getElementById('selCount').innerText = count + " selected";
+        document.getElementById('selectionBar').style.display = count > 0 ? 'block' : 'none';
+        const btnDelete = document.getElementById('btnBulkDelete');
+        btnDelete.style.display = (count > 0 && (currentFilter === 'SOLD' || currentFilter === 'DISABLE')) ? 'block' : 'none';
+    }
+
+    function copyTextQuick(txt, el) { navigator.clipboard.writeText(txt); document.getElementById('pwLabel').innerText = "COPIED!"; setTimeout(() => document.getElementById('pwLabel').innerText = "KLIK UNTUK SALIN", 1000); }
+    function copyText(txt, el, label) { navigator.clipboard.writeText(txt); el.innerText = "OK"; setTimeout(() => el.innerText = label, 800); }
+    function copyOTP(id) {
+        const code = document.getElementById('otp-' + id).innerText;
+        navigator.clipboard.writeText(code);
+        const btn = document.getElementById('btn-' + id);
+        btn.innerText = "DONE"; btn.style.background = "var(--success)";
+        setTimeout(() => { btn.innerText = "COPY OTP"; btn.style.background = "var(--primary)"; }, 1000);
+    }
+
+    function setFilter(f, el) { currentFilter = f; document.querySelectorAll('.tab').forEach(t => t.classList.remove('active')); el.classList.add('active'); render(); }
+
+    setInterval(() => {
+        const remain = 30 - (Math.floor(Date.now() / 1000) % 30);
+        accounts.forEach(acc => {
+            try {
+                let totp = new OTPAuth.TOTP({ secret: acc.key });
+                const el = document.getElementById('otp-' + acc.id);
+                if(el) el.innerText = totp.generate();
+                const tEl = document.getElementById('t-' + acc.id);
+                if(tEl) tEl.innerText = remain + "s";
+            } catch (e) {}
+        });
+    }, 1000);
 </script>
-
 </body>
 </html>
