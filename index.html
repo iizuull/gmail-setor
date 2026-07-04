@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2FA Pro Cloud v28.5</title>
+    <title>2FA Pro Cloud v31.2</title>
     <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-database-compat.js"></script>
@@ -29,15 +29,15 @@
         .btn-bulk { border: none; font-size: 10px; font-weight: bold; cursor: pointer; text-transform: uppercase; border-radius: 6px; padding: 10px 5px; }
         .grid-bulk { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; width: 100%; }
 
+        /* JUMBO DROP ZONE AREA */
         .card-form { background: var(--card); padding: 15px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 20px; }
-        input, textarea { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid var(--border); border-radius: 8px; background: #000; color: #fff; box-sizing: border-box; outline: none; font-family: inherit; }
+        .drop-zone { width: 100%; height: 220px; display: flex; flex-direction: column; justify-content: center; align-items: center; background: rgba(37, 99, 235, 0.03); border: 2px dashed var(--primary); border-radius: 10px; text-align: center; font-weight: bold; font-size: 13px; color: #fff; cursor: pointer; box-sizing: border-box; transition: 0.2s; padding: 20px; }
+        .drop-zone.drag-over { background: rgba(37, 99, 235, 0.15); border-color: var(--success); color: var(--success); }
         
-        /* DROP ZONE STYLE (DRAG & DROP) */
-        .drop-zone { width: 100%; padding: 25px 10px; background: rgba(37, 99, 235, 0.05); border: 2px dashed var(--primary); border-radius: 10px; text-align: center; font-weight: bold; font-size: 12px; color: #fff; cursor: pointer; box-sizing: border-box; margin-bottom: 15px; transition: 0.2s; }
-        .drop-zone.drag-over { background: rgba(37, 99, 235, 0.2); border-color: var(--success); color: var(--success); }
-        #reader { width: 100%; border-radius: 10px; overflow: hidden; margin-bottom: 10px; display: none; border: 1px solid var(--primary) !important; }
-
-        .btn-save { width: 100%; padding: 14px; background: #fff; color: #000; border: none; border-radius: 8px; cursor: pointer; font-weight: 800; text-transform: uppercase; }
+        /* CLASS ANIMASI KEDIP HIJAU */
+        .drop-zone.flash-success { background: rgba(34, 197, 94, 0.2) !important; border-color: var(--success) !important; color: var(--success) !important; transition: none; }
+        
+        #reader { width: 100%; border-radius: 10px; overflow: hidden; display: none; }
 
         .acc-item { background: var(--card); padding: 12px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 10px; display: flex; gap: 10px; }
         .acc-check { width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer; }
@@ -83,14 +83,16 @@
         </div>
 
         <div class="card-form">
-            <!-- DRAG & DROP ZONE -->
-            <div id="drop-zone" class="drop-zone">🚀 DRAG & DROP GAMBAR QR KE SINI <br><span style="font-size:10px; font-weight:normal; color:var(--gray)">(Bisa seret langsung dari tab browser lain / klik untuk upload)</span></div>
+            <div id="drop-zone" class="drop-zone">
+                <span>🚀 DRAG & DROP GAMBAR QR</span>
+                <span style="margin: 5px 0;">ATAU</span>
+                <span>TEKAN <b>CTRL + V</b> DI SINI</span>
+                <span style="font-size:10px; font-weight:normal; color:var(--gray); margin-top: 15px; line-height: 1.4;">
+                    (Otomatis mendeteksi instan saat dilepas)<br>Klik area ini untuk mencari file manual.
+                </span>
+            </div>
             <input type="file" id="qr-file-input" accept="image/*" style="display:none" onchange="processFile(this.files[0])">
             <div id="reader"></div>
-
-            <input type="text" id="accName" placeholder="Email Akun" autocomplete="off">
-            <input type="text" id="accKey" placeholder="Secret Key" oninput="this.value = this.value.replace(/\s/g, '').toUpperCase()" autocomplete="off">
-            <button class="btn-save" onclick="saveAccount()">Save Account</button>
         </div>
 
         <div class="filter-tabs">
@@ -105,7 +107,6 @@
         <div id="displayList"></div>
     </div>
 
-    <!-- SELECTION BAR -->
     <div class="selection-bar" id="selectionBar">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px">
             <label style="font-weight:bold; font-size:12px"><input type="checkbox" id="selectAll" onclick="toggleSelectAll()"> Select All</label>
@@ -144,7 +145,8 @@
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('main-app').style.display = 'block';
             loadData();
-            initDragAndDrop();
+            initAdvancedInputs();
+            startPreciseTicker();
         } else {
             document.getElementById('login-screen').style.display = 'block';
             document.getElementById('main-app').style.display = 'none';
@@ -154,28 +156,20 @@
     function login() { auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); }
     function logout() { if(confirm("Logout?")) auth.signOut(); }
 
-    // LOGIKA DRAG & DROP & CLICK TO UPLOAD
-    function initDragAndDrop() {
+    function initAdvancedInputs() {
         const zone = document.getElementById('drop-zone');
-        
-        // Klik kotak untuk upload manual dari file manager laptop
         zone.addEventListener('click', () => document.getElementById('qr-file-input').click());
 
-        // Efek visual saat file diseret di atas kotak
         window.addEventListener('dragover', (e) => e.preventDefault());
         zone.addEventListener('dragenter', () => zone.classList.add('drag-over'));
         zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
-
-        // Saat file dilepas (Dropped)
+        
         zone.addEventListener('drop', (e) => {
             e.preventDefault();
             zone.classList.remove('drag-over');
-            
-            // Cek apakah yang di-drag berupa file lokal atau element gambar dari web sebelah
             if (e.dataTransfer.files.length > 0) {
                 processFile(e.dataTransfer.files[0]);
             } else {
-                // Jika drag langsung gambar dari browser sebelah (URL Image / Base64)
                 const htmlData = e.dataTransfer.getData('text/html');
                 if (htmlData) {
                     const doc = new DOMParser().parseFromString(htmlData, 'text/html');
@@ -184,43 +178,66 @@
                 }
             }
         });
+
+        window.addEventListener('paste', (e) => {
+            const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+            for (let i = 0; i < items.length; i++) {
+                if (items[i].type.indexOf('image') !== -1) {
+                    const blob = items[i].getAsFile();
+                    processFile(blob);
+                    break;
+                }
+            }
+        });
+    }
+
+    function triggerFlashEffect() {
+        const zone = document.getElementById('drop-zone');
+        zone.classList.add('flash-success');
+        setTimeout(() => zone.classList.remove('flash-success'), 300);
     }
 
     function processFile(file) {
-        if (!file || !file.type.startsWith('image/')) return;
+        if (!file) return;
         const scanner = new Html5Qrcode("reader");
         scanner.scanFile(file, true)
             .then(text => parseQrCode(text))
-            .catch(() => alert("Gagal mendeteksi QR Code dari file ini!"));
-    }
-
-    function scanFromUrl(url) {
-        // Mengubah image URL web sebelah menjadi blob agar bisa di-scan oleh library
-        const scanner = new Html5Qrcode("reader");
-        fetch(url)
-            .then(res => res.blob())
-            .then(blob => scanner.scanFile(blob, true))
-            .then(text => parseQrCode(text))
-            .catch(() => alert("Gagal memproses gambar dari browser sebelah. Coba save gambarnya lalu drag filenya ke sini."));
+            .catch(() => alert("Gagal mendeteksi QR Code!"));
     }
 
     function parseQrCode(url) {
         try {
+            if (url.startsWith("otpauth://")) {
+                const uri = new URL(url);
+                const secret = uri.searchParams.get("secret");
+                let label = decodeURIComponent(uri.pathname.split('/').pop());
+                let email = label.includes(':') ? label.split(':').pop().trim() : label.trim();
+                if (secret && email) {
+                    saveToServer(email, secret.toUpperCase());
+                    return;
+                }
+            }
             const uri = new URL(url);
             const secret = uri.searchParams.get("secret");
             let label = decodeURIComponent(uri.pathname.split('/').pop());
             let email = label.includes(':') ? label.split(':').pop().trim() : label.trim();
             if (secret && email) {
-                document.getElementById('accName').value = email;
-                document.getElementById('accKey').value = secret.toUpperCase();
-                saveAccount(); // Langsung auto-save
+                saveToServer(email, secret.toUpperCase());
             }
         } catch (e) {
-            alert("QR Code terdeteksi, tapi format data di dalamnya bukan 2FA!");
+            alert("Format data salah / bukan QR 2FA!");
         }
     }
 
-    // FIREBASE LOGIC (Tetap utuh seperti v25.6)
+    function scanFromUrl(url) {
+        const scanner = new Html5Qrcode("reader");
+        fetch(url)
+            .then(res => res.blob())
+            .then(blob => scanner.scanFile(blob, true))
+            .then(text => parseQrCode(text))
+            .catch(() => alert("Gagal memproses gambar URL. Gunakan Copy Image lalu Paste."));
+    }
+
     function loadData() {
         db.ref('users/' + userUid).on('value', snapshot => {
             accounts = [];
@@ -234,14 +251,12 @@
         });
     }
 
-    function saveAccount() {
-        const nIn = document.getElementById('accName'), kIn = document.getElementById('accKey');
-        const name = nIn.value.trim().toLowerCase(), key = kIn.value.replace(/\s/g, '').toUpperCase();
-        if (!name || !key) return;
-        if (accounts.some(acc => acc.name.toLowerCase() === name)) { alert("Gagal! Email sudah ada."); return; }
+    function saveToServer(name, key) {
+        name = name.trim().toLowerCase();
+        if (accounts.some(acc => acc.name.toLowerCase() === name)) { alert("Gagal! Email sudah ada di database."); return; }
         const date = new Date().toLocaleString('id-ID', { day:'2-digit', month:'short' });
         db.ref('users/' + userUid).push({ name, key, status: 'STOK', date }).then(() => {
-            nIn.value = ''; kIn.value = '';
+            triggerFlashEffect(); // Picu kedip hijau instan kalau berhasil masuk
         });
     }
 
@@ -280,6 +295,7 @@
                 </div>`;
         });
         updateSelCount();
+        updateOTPAndTimers();
     }
 
     function cycleStatus(id, current) {
@@ -340,20 +356,36 @@
         setTimeout(() => { btn.innerText = "COPY OTP"; btn.style.background = "var(--primary)"; }, 1000);
     }
 
+    // FILTER FIX
     function setFilter(f, el) { currentFilter = f; document.querySelectorAll('.tab').forEach(t => t.classList.remove('active')); el.classList.add('active'); render(); }
 
-    setInterval(() => {
-        const remain = 30 - (Math.floor(Date.now() / 1000) % 30);
+    function updateOTPAndTimers() {
+        const nowMs = Date.now();
+        const remain = 30 - (Math.floor(nowMs / 1000) % 30);
+        
         accounts.forEach(acc => {
             try {
                 let totp = new OTPAuth.TOTP({ secret: acc.key });
                 const el = document.getElementById('otp-' + acc.id);
-                if(el) el.innerText = totp.generate();
+                if(el) {
+                    const generatedCode = totp.generate();
+                    if(el.innerText !== generatedCode) el.innerText = generatedCode;
+                }
                 const tEl = document.getElementById('t-' + acc.id);
                 if(tEl) tEl.innerText = remain + "s";
             } catch (e) {}
         });
-    }, 1000);
+    }
+
+    // MILIDETIK TICKER
+    function startPreciseTicker() {
+        function loop() {
+            updateOTPAndTimers();
+            const nextTickDelay = 1000 - (Date.now() % 1000);
+            setTimeout(loop, nextTickDelay);
+        }
+        loop();
+    }
 </script>
 </body>
 </html>
