@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2FA Pro Cloud v31.2</title>
+    <title>2FA Pro Cloud v32.5</title>
     <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-database-compat.js"></script>
@@ -12,14 +12,12 @@
     <style>
         :root { --primary: #2563eb; --bg: #000; --card: #121212; --border: #333; --text: #fff; --gray: #888; --danger: #ef4444; --success: #22c55e; --orange: #f59e0b; --purple: #a855f7; }
         body { font-family: -apple-system, sans-serif; background: var(--bg); color: var(--text); display: flex; justify-content: center; padding: 10px; margin: 0; }
-        .wrapper { width: 100%; max-width: 480px; padding-bottom: 100px; }
+        .wrapper { width: 100%; max-width: 480px; padding-bottom: 120px; }
         .header { margin-bottom: 15px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
         .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-top: 10px; }
         .stat-box { background: #1a1a1a; padding: 6px; border-radius: 6px; text-align: center; border: 1px solid var(--border); }
         .stat-box small { display: block; font-size: 8px; color: var(--gray); text-transform: uppercase; }
         .stat-box b { font-size: 12px; }
-
-        .pw-quick-bar { background: rgba(245, 158, 11, 0.1); border: 1px dashed var(--orange); padding: 8px; border-radius: 8px; margin: 10px 0; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
 
         .filter-tabs { display: flex; gap: 6px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 8px; scrollbar-width: none; }
         .tab { flex: 0 0 auto; min-width: 75px; padding: 10px 5px; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: var(--gray); cursor: pointer; font-size: 10px; font-weight: bold; text-align: center; }
@@ -29,15 +27,15 @@
         .btn-bulk { border: none; font-size: 10px; font-weight: bold; cursor: pointer; text-transform: uppercase; border-radius: 6px; padding: 10px 5px; }
         .grid-bulk { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; width: 100%; }
 
-        /* JUMBO DROP ZONE AREA */
         .card-form { background: var(--card); padding: 15px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 20px; }
         .drop-zone { width: 100%; height: 220px; display: flex; flex-direction: column; justify-content: center; align-items: center; background: rgba(37, 99, 235, 0.03); border: 2px dashed var(--primary); border-radius: 10px; text-align: center; font-weight: bold; font-size: 13px; color: #fff; cursor: pointer; box-sizing: border-box; transition: 0.2s; padding: 20px; }
         .drop-zone.drag-over { background: rgba(37, 99, 235, 0.15); border-color: var(--success); color: var(--success); }
-        
-        /* CLASS ANIMASI KEDIP HIJAU */
         .drop-zone.flash-success { background: rgba(34, 197, 94, 0.2) !important; border-color: var(--success) !important; color: var(--success) !important; transition: none; }
         
         #reader { width: 100%; border-radius: 10px; overflow: hidden; display: none; }
+
+        /* KOLOM NOTE STYLING (PERSIS STRUKTUR SEARCH SEBELUMNYA) */
+        .note-box { width: 100%; height: 60px; padding: 12px; border: 1px solid var(--border); border-radius: 8px; background: #000; color: #fff; box-sizing: border-box; outline: none; font-family: inherit; font-size: 12px; resize: none; margin-bottom: 15px; }
 
         .acc-item { background: var(--card); padding: 12px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 10px; display: flex; gap: 10px; }
         .acc-check { width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer; }
@@ -69,10 +67,6 @@
                 <h3 style="margin:0">Inventory Global</h3>
                 <button onclick="logout()" style="background:none; border:none; color:var(--danger); cursor:pointer; font-size:10px">LOGOUT</button>
             </div>
-            <div class="pw-quick-bar" onclick="copyTextQuick('sayamanusia', this)">
-                <span style="font-size:11px; font-weight:bold; color:var(--orange)">PW: sayamanusia</span>
-                <span id="pwLabel" style="font-size:9px; color:var(--gray)">KLIK UNTUK SALIN</span>
-            </div>
             <div class="stats-grid">
                 <div class="stat-box"><small>Total</small><b id="countTotal">0</b></div>
                 <div class="stat-box"><small style="color:var(--orange)">Stok</small><b id="countBelum">0</b></div>
@@ -103,7 +97,9 @@
             <div class="tab" onclick="setFilter('DISABLE', this)" style="border-color: var(--danger); color: var(--danger);">DISABLE</div>
         </div>
 
-        <textarea id="searchInput" style="height: 60px; resize: none;" placeholder="Cari banyak email (paste list ke bawah)..." oninput="render()"></textarea>
+        <!-- POSISI NOTE BARU: PERSIS DI TEMPAT MENU SEARCH SEBELUMNYA -->
+        <textarea id="noteArea" class="note-box" placeholder="Kolom Catatan / Note (Bisa ketik, copy, atau paste list ke bawah)..."></textarea>
+
         <div id="displayList"></div>
     </div>
 
@@ -180,6 +176,8 @@
         });
 
         window.addEventListener('paste', (e) => {
+            if (document.activeElement === document.getElementById('noteArea')) return;
+
             const items = (e.clipboardData || e.originalEvent.clipboardData).items;
             for (let i = 0; i < items.length; i++) {
                 if (items[i].type.indexOf('image') !== -1) {
@@ -213,7 +211,7 @@
                 let label = decodeURIComponent(uri.pathname.split('/').pop());
                 let email = label.includes(':') ? label.split(':').pop().trim() : label.trim();
                 if (secret && email) {
-                    saveToServer(email, secret.toUpperCase());
+                    saveToServer(email, secret.toUpperCase().replace(/\s/g, ''));
                     return;
                 }
             }
@@ -222,7 +220,7 @@
             let label = decodeURIComponent(uri.pathname.split('/').pop());
             let email = label.includes(':') ? label.split(':').pop().trim() : label.trim();
             if (secret && email) {
-                saveToServer(email, secret.toUpperCase());
+                saveToServer(email, secret.toUpperCase().replace(/\s/g, ''));
             }
         } catch (e) {
             alert("Format data salah / bukan QR 2FA!");
@@ -256,30 +254,26 @@
         if (accounts.some(acc => acc.name.toLowerCase() === name)) { alert("Gagal! Email sudah ada di database."); return; }
         const date = new Date().toLocaleString('id-ID', { day:'2-digit', month:'short' });
         db.ref('users/' + userUid).push({ name, key, status: 'STOK', date }).then(() => {
-            triggerFlashEffect(); // Picu kedip hijau instan kalau berhasil masuk
+            triggerFlashEffect();
         });
     }
 
     function render() {
         const div = document.getElementById('displayList');
-        const searchRaw = document.getElementById('searchInput').value.trim().toLowerCase();
-        const searchTerms = searchRaw.split(/[\n\s,]+/).filter(t => t !== "");
         let filtered = [...accounts].reverse();
         if (currentFilter !== 'ALL') filtered = filtered.filter(a => a.status === currentFilter);
-        if (searchTerms.length > 0) {
-            filtered = filtered.filter(acc => searchTerms.some(term => acc.name.toLowerCase().includes(term)));
-        }
         
         div.innerHTML = '';
         filtered.forEach(acc => {
             let sClass = acc.status === 'G2G' ? 'status-uploaded' : (acc.status === 'SOLD' ? 'status-sold' : (acc.status === 'DISABLE' ? 'status-disable' : 'status-pending'));
+            let visualKey = acc.key.replace(/\s/g, '').match(/.{1,4}/g).join(' ');
             div.innerHTML += `
                 <div class="acc-item" data-id="${acc.id}">
                     <input type="checkbox" class="acc-check" onclick="updateSelCount()">
                     <div style="flex-grow:1">
                         <span style="font-size:8px; color:var(--gray)">${acc.date || ''}</span>
                         <div style="display:flex; justify-content:space-between">
-                            <div><span class="email-display">${acc.name}</span><span class="key-display">${acc.key.match(/.{1,4}/g).join(' ')}</span></div>
+                            <div><span class="email-display">${acc.name}</span><span class="key-display">${visualKey}</span></div>
                             <button class="status-badge ${sClass}" onclick="cycleStatus('${acc.id}', '${acc.status}')">${acc.status || 'STOK'}</button>
                         </div>
                         <div class="otp-box">
@@ -288,7 +282,7 @@
                         </div>
                         <div style="display:flex; gap:10px">
                             <button class="btn-action-small" onclick="copyText('${acc.name}', this, 'MAIL')">MAIL</button>
-                            <button class="btn-action-small" onclick="copyText('${acc.key}', this, 'KEY')">KEY</button>
+                            <button class="btn-action-small" onclick="copyText('${visualKey}', this, 'KEY')">KEY</button>
                             <button onclick="if(confirm('Hapus?')) db.ref('users/${userUid}/${acc.id}').remove()" style="background:none; border:none; color:var(--danger); cursor:pointer; font-size:10px; margin-left:auto">Hapus</button>
                         </div>
                     </div>
@@ -302,6 +296,34 @@
         let flow = ['STOK','G2G','SOLD','DISABLE'];
         let next = flow[(flow.indexOf(current) + 1) % flow.length];
         db.ref(`users/${userUid}/${id}`).update({ status: next });
+    }
+
+    function updateOTPAndTimers() {
+        const nowMs = Date.now();
+        const remain = 30 - (Math.floor(nowMs / 1000) % 30);
+        
+        accounts.forEach(acc => {
+            try {
+                let cleanKey = acc.key.replace(/\s/g, '');
+                let totp = new OTPAuth.TOTP({ secret: cleanKey });
+                const el = document.getElementById('otp-' + acc.id);
+                if(el) {
+                    const generatedCode = totp.generate();
+                    if(el.innerText !== generatedCode) el.innerText = generatedCode;
+                }
+                const tEl = document.getElementById('t-' + acc.id);
+                if(tEl) tEl.innerText = remain + "s";
+            } catch (e) {}
+        });
+    }
+
+    function startPreciseTicker() {
+        function loop() {
+            updateOTPAndTimers();
+            const nextTickDelay = 1000 - (Date.now() % 1000);
+            setTimeout(loop, nextTickDelay);
+        }
+        loop();
     }
 
     function bulkUpdateStatus(s) {
@@ -325,7 +347,7 @@
         document.querySelectorAll('.acc-item').forEach(item => {
             if (item.querySelector('.acc-check').checked) {
                 const acc = accounts.find(a => a.id === item.getAttribute('data-id'));
-                text += `${acc.name}\n${acc.key}\n\n`;
+                text += `${acc.name}\n${acc.key.replace(/\s/g, '')}\n\n`;
             }
         });
         navigator.clipboard.writeText(text.trim());
@@ -346,7 +368,6 @@
         btnDelete.style.display = (count > 0 && (currentFilter === 'SOLD' || currentFilter === 'DISABLE')) ? 'block' : 'none';
     }
 
-    function copyTextQuick(txt, el) { navigator.clipboard.writeText(txt); document.getElementById('pwLabel').innerText = "COPIED!"; setTimeout(() => document.getElementById('pwLabel').innerText = "KLIK UNTUK SALIN", 1000); }
     function copyText(txt, el, label) { navigator.clipboard.writeText(txt); el.innerText = "OK"; setTimeout(() => el.innerText = label, 800); }
     function copyOTP(id) {
         const code = document.getElementById('otp-' + id).innerText;
@@ -356,36 +377,7 @@
         setTimeout(() => { btn.innerText = "COPY OTP"; btn.style.background = "var(--primary)"; }, 1000);
     }
 
-    // FILTER FIX
     function setFilter(f, el) { currentFilter = f; document.querySelectorAll('.tab').forEach(t => t.classList.remove('active')); el.classList.add('active'); render(); }
-
-    function updateOTPAndTimers() {
-        const nowMs = Date.now();
-        const remain = 30 - (Math.floor(nowMs / 1000) % 30);
-        
-        accounts.forEach(acc => {
-            try {
-                let totp = new OTPAuth.TOTP({ secret: acc.key });
-                const el = document.getElementById('otp-' + acc.id);
-                if(el) {
-                    const generatedCode = totp.generate();
-                    if(el.innerText !== generatedCode) el.innerText = generatedCode;
-                }
-                const tEl = document.getElementById('t-' + acc.id);
-                if(tEl) tEl.innerText = remain + "s";
-            } catch (e) {}
-        });
-    }
-
-    // MILIDETIK TICKER
-    function startPreciseTicker() {
-        function loop() {
-            updateOTPAndTimers();
-            const nextTickDelay = 1000 - (Date.now() % 1000);
-            setTimeout(loop, nextTickDelay);
-        }
-        loop();
-    }
 </script>
 </body>
 </html>
